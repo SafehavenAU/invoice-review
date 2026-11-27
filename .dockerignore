@@ -1,0 +1,6 @@
+*
+!pyproject.toml
+!uv.lock
+!invoice_review/
+!invoice_review/**
+**/__pycache__/

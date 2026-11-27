@@ -1,0 +1,56 @@
+[
+  {
+    "source_id": "INV-1042",
+    "kind": "invoice",
+    "title": "Electrical fit-out progress invoice",
+    "status": "received",
+    "supplier": "Coastal Spark Electrical",
+    "buyer": "Banksia Rooms Co.",
+    "issued_on": "2026-10-16",
+    "job": "Banksia Rooms fit-out",
+    "currency": "AUD",
+    "total_cents": 540000,
+    "evidence_ids": ["Q-1040", "VAR-1040-A", "REQ-1040-D"],
+    "lines": [
+      {"description": "Electrical fit-out", "amount_cents": 480000},
+      {"description": "After-hours access", "amount_cents": 40000},
+      {"description": "Disposal of removed fittings", "amount_cents": 20000}
+    ]
+  },
+  {
+    "source_id": "INV-1043",
+    "kind": "invoice",
+    "title": "Painting works invoice",
+    "status": "received",
+    "supplier": "Southbank Finishers",
+    "buyer": "Paperbark Studio Co.",
+    "issued_on": "2026-10-19",
+    "job": "Paperbark Studio repaint",
+    "currency": "AUD",
+    "total_cents": 98000,
+    "evidence_ids": ["Q-1043"],
+    "lines": [
+      {"description": "Wall preparation", "amount_cents": 28000},
+      {"description": "Two-coat interior repaint", "amount_cents": 70000}
+    ]
+  },
+  {
+    "source_id": "INV-1044",
+    "kind": "invoice",
+    "title": "Joinery installation and site visits",
+    "status": "received",
+    "supplier": "Larkspur Joinery",
+    "buyer": "Wattle Street Studios",
+    "issued_on": "2026-10-21",
+    "job": "Wattle Street amenities",
+    "currency": "AUD",
+    "total_cents": 94000,
+    "evidence_ids": ["Q-1044", "VAR-1044-F"],
+    "lines": [
+      {"description": "Joinery installation", "amount_cents": 60000},
+      {"description": "Hardware return visit", "amount_cents": 15000},
+      {"description": "Second hardware visit", "amount_cents": 15000},
+      {"description": "Site attendance", "amount_cents": 4000}
+    ]
+  }
+]

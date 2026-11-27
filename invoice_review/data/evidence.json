@@ -1,0 +1,78 @@
+[
+  {
+    "source_id": "Q-1040",
+    "kind": "quote",
+    "title": "Accepted electrical fit-out quote",
+    "status": "accepted",
+    "supplier": "Coastal Spark Electrical",
+    "job": "Banksia Rooms fit-out",
+    "excerpt": "Electrical fit-out to the issued floor plan, AUD 4,800 ex GST. After-hours attendance and disposal are outside this scope.",
+    "items": [
+      {"work": "electrical-fitout", "aliases": ["electrical fit out", "electrical fitout"], "amount_cents": 480000}
+    ]
+  },
+  {
+    "source_id": "VAR-1040-A",
+    "kind": "variation",
+    "title": "After-hours access variation",
+    "status": "approved",
+    "comparison_status": "draft",
+    "supplier": "Coastal Spark Electrical",
+    "job": "Banksia Rooms fit-out",
+    "excerpt": "Additional allowance of AUD 400 ex GST for electrical crew attendance after the building's normal access hours.",
+    "items": [
+      {"work": "after-hours", "aliases": ["after hours access", "after hours attendance"], "amount_cents": 40000}
+    ]
+  },
+  {
+    "source_id": "REQ-1040-D",
+    "kind": "request",
+    "title": "Request to remove old fittings",
+    "status": "requested",
+    "supplier": "Coastal Spark Electrical",
+    "job": "Banksia Rooms fit-out",
+    "excerpt": "Please price removal of the old fittings. The proposed AUD 200 ex GST disposal charge is awaiting approval.",
+    "items": [
+      {"work": "disposal", "aliases": ["disposal of removed fittings", "old fitting disposal"], "amount_cents": 20000}
+    ]
+  },
+  {
+    "source_id": "Q-1043",
+    "kind": "quote",
+    "title": "Accepted interior painting quote",
+    "status": "accepted",
+    "supplier": "Southbank Finishers",
+    "job": "Paperbark Studio repaint",
+    "excerpt": "Prepare existing walls for AUD 280 and apply two coats of interior paint for AUD 700. Both amounts are ex GST.",
+    "items": [
+      {"work": "paint-prep", "aliases": ["wall preparation", "surface preparation"], "amount_cents": 28000},
+      {"work": "paint-coats", "aliases": ["two coat interior repaint", "interior wall painting"], "amount_cents": 70000}
+    ]
+  },
+  {
+    "source_id": "Q-1044",
+    "kind": "quote",
+    "title": "Accepted joinery and visit schedule",
+    "status": "accepted",
+    "supplier": "Larkspur Joinery",
+    "job": "Wattle Street amenities",
+    "excerpt": "Install joinery for AUD 600. Site measure and final inspection are separate items of AUD 150 each. The description 'site attendance' alone does not distinguish between them. All figures ex GST.",
+    "items": [
+      {"work": "joinery-install", "aliases": ["joinery installation"], "amount_cents": 60000},
+      {"work": "site-measure", "aliases": ["site measure", "site attendance"], "amount_cents": 15000},
+      {"work": "inspection", "aliases": ["final inspection", "site attendance"], "amount_cents": 15000}
+    ]
+  },
+  {
+    "source_id": "VAR-1044-F",
+    "kind": "variation",
+    "title": "Hardware return visits allowance",
+    "status": "approved",
+    "supplier": "Larkspur Joinery",
+    "job": "Wattle Street amenities",
+    "excerpt": "Return visits to fit replacement hardware share one allowance of AUD 200 ex GST in total.",
+    "items": [
+      {"work": "hardware-visit", "aliases": ["hardware return visit", "second hardware visit"], "amount_cents": 20000}
+    ]
+  }
+]

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare a sample supplier invoice with its approved quote and variations, inspect the evidence, and prepare a supplier query.">
+  <title>Invoice review | Quote and variation check</title>
+  <style>
+    :root {color-scheme:light;--paper:#f5f4f7;--white:#fff;--ink:#2c2536;--sub:#5c5666;--plum:#4c365f;--rule:#d8d4dd;--tint:#f0ecf4;--gold:#ffdf91;--amber:#724400;--sage:#326143;--sans:"DM Sans","Segoe UI",Arial,sans-serif;--serif:"STIX Two Text",Cambria,Georgia,serif}
+    * {box-sizing:border-box}
+    body {margin:0;color:var(--ink);background:var(--paper);font:16px/1.48 var(--sans);-webkit-font-smoothing:antialiased}
+    h1,h2,h3,h4,p,blockquote,dl,dt,dd {margin:0}
+    button,input,select,summary {font:inherit}
+    :focus-visible {outline:3px solid #804ca4;outline-offset:3px}
+    .wrap {max-width:1216px;width:calc(100% - 88px);margin-inline:auto}
+    .top {border-bottom:1px solid var(--rule);background:var(--white)}
+    .top .wrap {display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:13px}
+    .brand {display:flex;align-items:center;gap:9px;font-weight:650;letter-spacing:-.025em}
+    .receipt {width:18px;height:23px;border:2px solid var(--plum);border-radius:2px;position:relative}
+    .receipt::before,.receipt::after {content:"";position:absolute;height:2px;left:3px;background:var(--plum)}
+    .receipt::before {top:5px;width:8px;box-shadow:0 4px var(--plum)}.receipt::after {top:13px;width:5px}
+    .offline {font-size:.82rem;color:var(--sub)}
+    header {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:31px 0 24px}
+    h1 {font:500 clamp(2.5rem,5.4vw,4.4rem)/1.04 var(--serif);letter-spacing:-.047em}
+    header p {max-width:62ch;color:var(--sub);margin-top:8px;font-size:1.04rem}
+    .select-label {display:block;font-size:.83rem;font-weight:650;margin-bottom:5px}
+    select {max-width:100%;height:43px;min-width:148px;border:1px solid #a59aaf;border-radius:6px;background:white;padding:6px 8px;color:var(--ink);cursor:pointer}
+    #review {border:1px solid var(--rule);border-radius:14px;background:white;overflow:hidden}
+    .invoice-heading {padding:20px 24px 16px;display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px}
+    h2 {font:600 1.47rem/1.24 var(--serif);letter-spacing:-.018em}
+    #invoice-context {color:var(--sub);font-size:.96rem}
+    #units {margin-left:auto;color:var(--sub);font-size:.84rem}
+    .totals {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);background:#faf9fb}
+    .total {padding:13px 24px 17px;position:relative}.total + .total {border-left:1px solid var(--rule)}
+    .total dt {font-size:.88rem;color:var(--sub)}
+    .total dd {margin-top:4px;font:500 clamp(1.75rem,3.4vw,2.75rem)/1.1 var(--serif);letter-spacing:-.04em;font-variant-numeric:lining-nums tabular-nums}
+    .total.query {background:var(--gold)}.total.query dt {color:#543a08}.total.clear {background:#e5f0e8}
+    .simulation {padding:12px 24px;display:flex;align-items:center;flex-wrap:wrap;gap:5px 16px;border-top:1px solid var(--rule);background:#fff}
+    .simulation label {display:flex;align-items:center;min-height:32px;gap:9px;cursor:pointer;color:var(--plum);font-weight:600}
+    .simulation input {height:19px;width:19px;margin:0;accent-color:var(--plum)}
+    #scenario-note {color:var(--sub);font-size:.86rem}
+    .workbench {display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;margin:20px 0}
+    .lines,.evidence,.letter {border:1px solid var(--rule);background:var(--white);border-radius:12px}
+    .lead {padding:19px 20px 10px}
+    .lead p,.sub {color:var(--sub);font-size:.9rem;margin-top:4px}
+    .line-list {padding:2px 10px 10px;display:grid;gap:5px}
+    .line {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;width:100%;text-align:left;padding:12px 11px;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:7px;cursor:pointer;touch-action:manipulation}
+    .line + .line {border-top-color:var(--rule)}
+    .line:hover {background:#f7f5f8}
+    .line[aria-pressed="true"] {background:var(--tint);border:1px solid #b6a6c1}
+    .line-name {font-weight:600;line-height:1.35}
+    .amount {font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .status {grid-column:1 / -1;font-size:.84rem;color:var(--sage)}
+    .status.issue {color:var(--amber)}
+    .evidence {align-self:start;border-color:#c5bacd}
+    .evidence .lead {background:var(--plum);color:white;border-radius:11px 11px 0 0;padding-bottom:15px}
+    .evidence .lead p {color:#eee7f3}
+    .e-details {padding:16px 20px 18px}
+    #reason {font-size:.94rem}
+    .split {color:var(--plum);font-weight:600;font-size:.88rem;margin-top:8px}
+    .docs {display:grid;margin-top:12px}
+    .doc {border-top:1px solid var(--rule);padding:10px 0 7px}
+    .doc summary {cursor:pointer;font-weight:600;font-size:.91rem;line-height:1.55;overflow-wrap:anywhere}
+    .doc-meta {display:block;margin:4px 0 3px;color:var(--sub);font-size:.8rem}
+    .doc blockquote {padding-left:11px;border-left:2px solid #c4b4ce;font-size:.9rem;line-height:1.5;overflow-wrap:anywhere}
+    .letter {padding:16px 20px;margin-bottom:18px}
+    .letter summary {cursor:pointer;color:var(--plum);font-weight:650;min-height:26px}
+    .letter blockquote {white-space:pre-line;max-width:82ch;font-size:.97rem;margin-top:13px}
+    footer {color:var(--sub);margin:18px 0 32px;font-size:.84rem;max-width:86ch}
+    .sr {position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+    [hidden] {display:none!important}
+    @media(max-width:850px) {
+      .wrap {width:calc(100% - 40px)}
+      .workbench {grid-template-columns:1fr 1fr;gap:12px}
+      .total {padding:12px 17px 15px}.lead,.e-details {padding-left:15px;padding-right:15px}
+    }
+    @media(max-width:680px) {
+      .wrap {width:calc(100% - 28px)}
+      header {display:block;padding:21px 0 15px}
+      .invoice-picker {display:flex;gap:8px;align-items:center;margin-top:14px}
+      .select-label {margin:0}select {height:41px}
+      .invoice-heading {padding:13px 14px;display:block}
+      #invoice-context {margin-top:3px}
+      .totals {grid-template-columns:repeat(2,minmax(0,1fr))}
+      .total {padding:9px 14px 11px}.total:nth-child(3){border-left:0}
+      .total:nth-child(n+3) {border-top:1px solid var(--rule)}
+      .total dd {font-size:1.9rem}
+      .simulation {display:block;padding:9px 14px}.simulation label {min-height:40px}
+      #scenario-note {display:block}
+      .workbench {grid-template-columns:1fr;gap:13px;margin:13px 0}
+      .line {min-height:44px}.lead {padding:15px 14px 9px}
+      .e-details,.letter {padding:14px}.top .wrap {padding-block:10px}
+    }
+    @media print {
+      body {background:white;font-size:10pt}.wrap {width:100%;max-width:none}.top .wrap {padding:0}
+      header {padding:12px 0}.invoice-picker {display:none}h1 {font-size:28pt}
+      .workbench {gap:10px}.total dd {font-size:20pt}
+      .simulation {font-size:9pt}.lines,.evidence,.letter,.doc {break-inside:avoid}
+      .evidence .lead {color:black;background:white}.evidence .lead p {color:black}
+    }
+  </style>
+</head>
+<body>
+  <div class="top"><div class="wrap"><span class="brand"><span class="receipt" aria-hidden="true"></span>Quote-to-invoice review</span><span class="offline">Offline demo</span></div></div>
+  <div class="wrap">
+    <header>
+      <div><h1>Invoice review</h1><p>See which charges the approved quote and variations cover, then inspect the records behind each decision.</p></div>
+      <div class="invoice-picker"><label class="select-label" for="invoice-select">Sample invoice</label><select id="invoice-select"></select></div>
+    </header>
+    <noscript>This interactive walkthrough needs JavaScript enabled in your browser.</noscript>
+    <main id="app" hidden>
+      <section id="review" aria-labelledby="invoice-title">
+        <div class="invoice-heading"><h2 id="invoice-title"></h2><p id="invoice-context"></p><p id="units"></p></div>
+        <dl class="totals">
+          <div class="total"><dt>Original quote</dt><dd id="quote"></dd></div>
+          <div class="total"><dt>Invoiced</dt><dd id="invoiced"></dd></div>
+          <div class="total"><dt>Supported</dt><dd id="supported"></dd></div>
+          <div class="total query" id="query-tile"><dt>To query</dt><dd id="query"></dd></div>
+        </dl>
+        <div class="simulation" id="simulation">
+          <label><input type="checkbox" id="draft-simulation" aria-describedby="scenario-note">If the variation were a draft</label>
+          <span id="scenario-note"></span>
+        </div>
+      </section>
+      <div class="workbench">
+        <section class="lines" aria-labelledby="lines-title"><div class="lead"><h2 id="lines-title">Invoice lines</h2><p>Choose a charge to inspect its evidence.</p></div><div class="line-list" id="line-list"></div></section>
+        <section class="evidence" aria-labelledby="evidence-title"><div class="lead"><h2 id="evidence-title" tabindex="-1">Line evidence</h2><p id="selected-description"></p></div>
+          <div class="e-details"><p id="reason"></p><p class="split" id="line-split"></p><div class="docs" id="records"></div></div>
+        </section>
+      </div>
+      <details class="letter" id="letter"><summary>Supplier query draft</summary><blockquote id="draft-question"></blockquote></details>
+      <footer>All records are synthetic. A deterministic rules engine matches evidence and checks amounts. This local walkthrough shows its results. Supplier questions stay as drafts.</footer>
+      <div class="sr" id="change-note" role="status"></div>
+    </main>
+  </div>
+  <script type="application/json" id="review-data">{{REVIEW_DATA}}</script>
+  <script>
+    'use strict';
+    const data = JSON.parse(document.getElementById('review-data').textContent);
+    const byId = (id) => document.getElementById(id);
+    const invoiceSelect = byId('invoice-select');
+    const toggle = byId('draft-simulation');
+    let invoiceId = 'INV-1042';
+    let lineIndex = 0;
+    function current() {
+      const bundles = data[invoiceId];
+      return toggle.checked && bundles.draft ? bundles.draft : bundles.recorded;
+    }
+    function money(cents) {
+      return Intl.NumberFormat('en-AU', {
+        style:'currency',currency:current().review.currency,
+        minimumFractionDigits:cents % 100 === 0 ? 0 : 2,maximumFractionDigits:2
+      }).format(cents / 100);
+    }
+    function human(value) {
+      const label = String(value).replace(/[_-]+/g, ' ');
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    }
+    function el(tag, text, css) {
+      const node = document.createElement(tag);
+      if (text !== undefined) node.textContent = text;
+      if (css) node.className = css;
+      return node;
+    }
+    function showEvidence() {
+      const {review,sources} = current();
+      const line = review.lines[lineIndex];
+      byId('selected-description').textContent = line.description;
+      byId('reason').textContent = line.reason;
+      byId('line-split').textContent = money(line.supported_cents) + ' supported  /  ' + money(line.query_cents) + ' to query';
+      byId('records').replaceChildren();
+      const ids = [...new Set(line.source_ids)];
+      ids.sort((a, b) => Number(a === review.invoice_source_id) - Number(b === review.invoice_source_id));
+      ids.forEach((id, index) => {
+        const source = sources[id];
+        const entry = el('details', undefined, 'doc');
+        entry.open = index === 0;
+        const title = el('summary', source.title);
+        const meta = el('p', [source.source_id, human(source.kind), human(source.status)].join(' / '), 'doc-meta');
+        entry.append(title, meta, el('blockquote', source.excerpt));
+        byId('records').append(entry);
+      });
+      [...byId('line-list').children].forEach((node,i) => node.setAttribute('aria-pressed',String(i === lineIndex)));
+    }
+    function render(preferLine) {
+      const {review:r} = current();
+      byId('app').hidden = false;
+      byId('invoice-title').textContent = r.invoice_id;
+      byId('invoice-context').textContent = r.supplier + ' / ' + r.job;
+      byId('units').textContent = 'Amounts in ' + r.currency + ', excluding GST';
+      byId('quote').textContent = money(r.quote_cents);
+      byId('invoiced').textContent = money(r.total_cents);
+      byId('supported').textContent = money(r.supported_cents);
+      byId('query').textContent = money(r.query_cents);
+      byId('query-tile').className = 'total ' + (r.query_cents ? 'query' : 'clear');
+      byId('simulation').hidden = !data[invoiceId].draft;
+      byId('scenario-note').textContent = toggle.checked ? 'Simulation on. The variation is now a draft.' : 'Simulation off. Showing the recorded approval.';
+      byId('line-list').replaceChildren();
+      if (preferLine === undefined) {
+        const firstIssue = r.lines.findIndex((line) => line.query_cents > 0);
+        lineIndex = Math.max(0,firstIssue);
+      } else {
+        lineIndex = preferLine;
+      }
+      r.lines.forEach((line, index) => {
+        const row = el('button', undefined, 'line');
+        row.type = 'button';
+        row.setAttribute('aria-controls','selected-description reason line-split records');
+        const status = line.query_cents > 0 ? money(line.query_cents) + ' to query' : 'Supported';
+        row.append(el('span', line.description,'line-name'),el('span',money(line.amount_cents),'amount'),el('span',status,line.query_cents ? 'status issue':'status'));
+        row.addEventListener('click',() => {
+          lineIndex = index;
+          showEvidence();
+          if (window.matchMedia('(max-width:680px)').matches) byId('evidence-title').focus();
+          byId('change-note').textContent = 'Showing the evidence for ' + line.description + '.';
+        });
+        byId('line-list').append(row);
+      });
+      showEvidence();
+      byId('draft-question').textContent = r.draft_question || 'All charges have supporting records. No supplier query is needed.';
+      byId('letter').open = false;
+      byId('change-note').textContent = r.invoice_id + '. ' + money(r.supported_cents) + ' supported. ' + money(r.query_cents) + ' to query.';
+    }
+    Object.keys(data).sort().forEach((id) => {
+      const option = el('option',id);
+      option.value = id;
+      invoiceSelect.append(option);
+    });
+    invoiceSelect.value = invoiceId;
+    invoiceSelect.addEventListener('change', () => {
+      invoiceId = invoiceSelect.value;
+      toggle.checked = false;
+      render();
+    });
+    toggle.addEventListener('change', () => {
+      const before = data[invoiceId].recorded.review.lines;
+      const after = data[invoiceId].draft.review.lines;
+      const changed = before.findIndex((line,i) => line.supported_cents !== after[i].supported_cents);
+      render(changed < 0 ? lineIndex : changed);
+    });
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "invoice-review"
+version = "0.1.0"
+description = "A read-only invoice exception review on synthetic purchasing records."
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "fastapi>=0.165,<1",
+    "mcp==2.3.0",
+    "uvicorn>=0.54,<1",
+]
+
+[project.scripts]
+invoice-review-mcp = "invoice_review.mcp_server:main"
+invoice-review-api = "invoice_review.http_api:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["invoice_review"]
