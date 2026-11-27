@@ -2,9 +2,9 @@
 
 An operations manager has a $5,400 supplier invoice and a $4,800 quote. Which extra charges have supporting paperwork? This small, read-only application puts each invoice line beside its evidence and drafts a question for the supplier.
 
-**[Open the business demo](demo/index.html)** · **[Download the example invoice and evidence](samples/INV-1042.pdf)** · **[Read the architecture, stack choices and pilot plan](docs/v1-plan.md)**
+**[Open the live business demo](https://safehavenau.github.io/invoice-review/demo/)** · **[Download the example invoice and evidence](samples/INV-1042.pdf)** · **[Read the architecture, stack choices and pilot plan](docs/v1-plan.md)**
 
-Download the repo and open `demo/index.html` in a browser. It works offline with no setup. GitHub's file viewer shows the HTML source. To share a web link after publishing, choose **Settings → Pages → Deploy from a branch**, select the default branch and `/(root)`, then append `demo/` to the published site URL. [GitHub Pages publishing sources](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+The live demo opens directly in a browser and uses fictional records. For an offline presentation, download the repo and open `demo/index.html`.
 
 ![Example review showing a $200 disposal line and the underlying request](docs/demo-preview.png)
 
