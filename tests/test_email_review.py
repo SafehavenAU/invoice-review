@@ -103,6 +103,9 @@ class EmailApprovalTests(unittest.TestCase):
         demo = build_email_demo.ROOT / "demo"
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "email-approvals.html"
-            build_email_demo.main(output)
+            case_output = Path(temp) / "case-study.html"
+            build_email_demo.main(output, case_output)
             self.assertEqual(output.read_text(encoding="utf-8"),
                              (demo / "email-approvals.html").read_text(encoding="utf-8"))
+            self.assertEqual(case_output.read_text(encoding="utf-8"),
+                             (build_email_demo.ROOT / "case-study/index.html").read_text(encoding="utf-8"))

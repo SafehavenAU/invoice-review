@@ -1,4 +1,4 @@
-"""Generate the self-contained email approval walkthrough from the verified model readings."""
+"""Build the email walkthrough and its interactive case study from the same evidence."""
 
 import json
 import re
@@ -17,20 +17,27 @@ def script_json(data):
     return payload.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
-def main(output=None):
-    demo = ROOT / "demo"
-    template = (demo / "email-approvals.template.html").read_text(encoding="utf-8")
-    model = json.loads((ROOT / "invoice_review/data/reply_model.json").read_text(encoding="utf-8"))
-    parts = {"{{EMAIL_DATA}}": script_json(build_bundle()), "{{REPLY_MODEL}}": script_json(model),
-             "{{REPLY_INTENT_JS}}": (demo / "reply-intent.js").read_text(encoding="utf-8"),
-             "{{REPLY_POLICY_JS}}": (demo / "reply-policy.js").read_text(encoding="utf-8")}
+def write_page(template_path, output_path, parts):
+    template = template_path.read_text(encoding="utf-8")
     for marker, content in parts.items():
         if template.count(marker) != 1 or "</script" in content.lower():
             raise ValueError(f"Invalid script or template marker: {marker}")
     html = re.sub("|".join(map(re.escape, parts)), lambda match: parts[match[0]], template)
-    path = output or demo / "email-approvals.html"
-    path.write_text(html, encoding="utf-8", newline="\n")
-    print(f"Built {path.name} with recorded readings and the local reply classifier.")
+    output_path.write_text(html, encoding="utf-8", newline="\n")
+    print(f"Built {output_path.name} from {template_path.name}.")
+
+
+def main(output=None, case_output=None):
+    demo = ROOT / "demo"
+    study = ROOT / "case-study"
+    model = json.loads((ROOT / "invoice_review/data/reply_model.json").read_text(encoding="utf-8"))
+    evidence = {"{{EMAIL_DATA}}": script_json(build_bundle()), "{{REPLY_MODEL}}": script_json(model)}
+    walkthrough = {**evidence,
+                   "{{REPLY_INTENT_JS}}": (demo / "reply-intent.js").read_text(encoding="utf-8"),
+                   "{{REPLY_POLICY_JS}}": (demo / "reply-policy.js").read_text(encoding="utf-8")}
+    write_page(demo / "email-approvals.template.html", output or demo / "email-approvals.html", walkthrough)
+    if output is None or case_output is not None:
+        write_page(study / "index.template.html", case_output or study / "index.html", evidence)
 
 
 if __name__ == "__main__":

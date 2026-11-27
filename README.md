@@ -2,6 +2,8 @@
 
 An operations manager has a $5,400 supplier invoice and a $4,800 quote. Which extra charges have supporting paperwork? This small, read-only application puts each invoice line beside its evidence and drafts a question for the supplier.
 
+**[Read the case study and try both replies](https://safehavenau.github.io/invoice-review/case-study/)** to see how two replies to the same email change the amount to query.
+
 **[Write your own approval reply](https://safehavenau.github.io/invoice-review/demo/email-approvals.html#write-reply)** · **[Review the original invoice and variations](https://safehavenau.github.io/invoice-review/demo/)** · **[Download the example invoice and evidence](samples/INV-1042.pdf)** · **[Read the architecture and pilot plan](docs/v1-plan.md)**
 
 Both walkthroughs use fictional records and work offline. To present them locally, download the repo and open `demo/index.html`.

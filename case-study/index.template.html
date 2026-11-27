@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Try two replies to the same supplier email and see which one supports a $400 charge on a fictional Xero bill.">
+  <title>When a supplier invoice exceeds the quote | Invoice review case study</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #142e29;
+      --text: #253d37;
+      --muted: #51675f;
+      --teal: #176350;
+      --edge: #c2d1c9;
+      --wash: #edf4ee;
+      --serif: "STIX Two Text", Georgia, Cambria, serif;
+      --sans: "DM Sans", "Segoe UI", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fff; color: var(--text); font: 1rem/1.6 var(--sans); }
+    h1, h2, h3, p, blockquote, dl, dd { margin: 0; }
+    h1, h2, h3 { color: var(--ink); font-family: var(--serif); font-weight: 500; }
+    h1 { max-width: 15ch; font-size: clamp(2.7rem, 5.1vw, 4.4rem); line-height: 1.02; letter-spacing: -.045em; }
+    h2 { font-size: clamp(1.8rem, 3vw, 2.45rem); line-height: 1.14; letter-spacing: -.035em; }
+    h3 { font-size: 1.52rem; line-height: 1.2; letter-spacing: -.02em; }
+    a { color: var(--teal); text-decoration-thickness: .075em; text-underline-offset: .19em; font-weight: 650; }
+    a:hover { color: var(--ink); }
+    button, a, summary { touch-action: manipulation; }
+    :focus-visible { outline: 3px solid #146a98; outline-offset: 4px; }
+    [hidden] { display: none !important; }
+    .wrap { width: min(64rem, calc(100% - 4rem)); margin-inline: auto; }
+    .skip { position: absolute; left: .75rem; top: -8rem; padding: .55rem .9rem; color: #fff; background: var(--ink); z-index: 2; }
+    .skip:focus { top: .75rem; color: #fff; }
+    .masthead { background: var(--ink); color: #f0f8f2; }
+    .masthead .wrap { display: flex; align-items: center; justify-content: space-between; gap: .65rem 1.15rem; padding-block: .8rem; }
+    .masthead p { font-size: .93rem; line-height: 1.35; }
+    .masthead b { margin-right: .46rem; font-weight: 700; }
+    .masthead .divider { margin-right: .46rem; color: #b2cabe; }
+    .masthead a { color: #fff; white-space: nowrap; font-size: .9rem; }
+    .opening { background: #f7faf7; border-bottom: 1px solid var(--edge); }
+    .opening .wrap { display: grid; grid-template-columns: 1.55fr minmax(16rem, 1fr); align-items: center; gap: clamp(2rem, 5vw, 4.5rem); padding-block: clamp(2.3rem, 4.7vw, 4rem); }
+    .lead { font-size: clamp(1.05rem, 1.6vw, 1.23rem); line-height: 1.5; margin-top: 1rem; max-width: 49ch; }
+    .bill { padding: 1.25rem 1.45rem 1rem; background: #fff; box-shadow: 0 4px 16px #193b2910; border: 1px solid var(--edge); border-top: 4px solid var(--teal); }
+    .bill h2 { font: 700 1.1rem/1.35 var(--sans); letter-spacing: -.01em; }
+    .bill p { color: var(--muted); font-size: .89rem; margin: .05rem 0 .75rem; }
+    .bill dl > div, .totals > div { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-block: .22rem; }
+    .bill dd, .totals dd { font-variant-numeric: tabular-nums; font-weight: 650; }
+    .bill .total { border-top: 1px solid var(--edge); margin-top: .5rem; padding-top: .5rem; font-weight: 700; }
+    .body { max-width: 49rem; padding-block: 2.7rem 3.25rem; }
+    .story { max-width: 68ch; margin-top: .68rem; }
+    .email { margin: 1.35rem 0; padding: .1rem 0 .15rem 1rem; border-left: 3px solid #85aa97; }
+    .email p { font: 500 1.12rem/1.5 var(--serif); }
+    .sender { font: 600 .87rem/1.4 var(--sans); display: block; color: var(--muted); margin-bottom: .2rem; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: .65rem; }
+    .reply { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: .5rem; padding: 1rem 1.1rem; border: 1px solid #8ca99c; border-radius: .5rem; background: #fff; color: var(--ink); text-align: left; font: inherit; cursor: pointer; }
+    .reply:hover { background: #f4f8f5; border-color: var(--teal); }
+    .reply[aria-pressed="true"] { background: #e7f1e9; box-shadow: inset 0 0 0 1px var(--teal); border-color: var(--teal); }
+    .reply [data-reply-text] { font-weight: 650; line-height: 1.45; }
+    .try { color: var(--teal); font-size: .88rem; font-weight: 650; text-decoration: underline; text-underline-offset: .2em; }
+    .result { margin-top: 1rem; border-left: 4px solid var(--teal); padding: 1.15rem 1.35rem; background: var(--wash); scroll-margin-block-start: 1rem; }
+    .result[data-status="unclear"] { border-color: #a56b22; background: #fcf6e9; }
+    .result h3 { width: fit-content; scroll-margin-block-start: 1rem; }
+    .result blockquote { margin-top: .65rem; font-weight: 650; }
+    .result blockquote::before { content: '“'; } .result blockquote::after { content: '”'; }
+    .result p { margin-top: .3rem; }
+    .totals { max-width: 23rem; margin-top: .65rem; border-top: 1px solid #b4c2b9; padding-top: .4rem; }
+    #finding-followup { margin-top: .75rem; }
+    .back { display: inline-block; margin-top: .8rem; }
+    #reply-choices { scroll-margin-block-start: 1rem; }
+    .compare { margin: 1rem 0 .65rem; }
+    summary { cursor: pointer; width: fit-content; font-weight: 600; color: var(--teal); }
+    .compare ul { padding-left: 1.3rem; margin: .6rem 0; }
+    .compare li + li { margin-top: .25rem; }
+    .pilot { margin-top: 2rem; border-top: 1px solid var(--edge); padding-top: 1.6rem; }
+    .pilot p { max-width: 70ch; margin-top: .7rem; }
+    .invitation { color: var(--teal); font-weight: 650; }
+    .sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    @media (max-width: 680px) {
+      .wrap { width: calc(100% - 2.25rem); }
+      .opening .wrap { grid-template-columns: 1fr; gap: 1.25rem; padding-block: 1.9rem 1.6rem; }
+      .bill { max-width: 30rem; width: 100%; }
+      .body { padding-block: 1.65rem 2.2rem; }
+    }
+    @media (max-width: 485px) {
+      .masthead .wrap { flex-wrap: wrap; }
+      .choices { grid-template-columns: 1fr; }
+      .reply { gap: .2rem; padding: .8rem .95rem; }
+      .result { padding: 1rem; }
+    }
+  </style>
+  <script src="../demo/reply-intent.js" defer></script>
+  <script src="../demo/reply-policy.js" defer></script>
+  <script src="./case-study.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#try">Skip to the two replies</a>
+  <header class="masthead">
+    <div class="wrap">
+      <p><b>Richard</b><span class="divider" aria-hidden="true">/</span> Invoice review case study</p>
+      <a href="./invoice-review-case-study.pdf">Printable case study (PDF)</a>
+    </div>
+  </header>
+  <main>
+    <div class="opening">
+      <div class="wrap">
+        <div>
+          <h1>When a supplier invoice exceeds the quote</h1>
+          <p class="lead">When a supplier bills for extra work, the bill may be in Xero and the approval buried in email. This demo puts the buyer’s exact words beside the charge.</p>
+        </div>
+        <section class="bill" aria-labelledby="bill-heading">
+          <h2 id="bill-heading">Sample Xero bill</h2>
+          <p>INV-1042 · AUD excluding GST</p>
+          <dl>
+            <div><dt>Quoted work</dt><dd>$4,800</dd></div>
+            <div><dt>Thursday after-hours visit</dt><dd>$400</dd></div>
+            <div><dt>Disposal</dt><dd>$200</dd></div>
+            <div class="total"><dt>Total billed</dt><dd>$5,400</dd></div>
+          </dl>
+        </section>
+      </div>
+    </div>
+    <div class="wrap body">
+      <section aria-labelledby="try">
+        <h2 id="try" tabindex="-1">Try two replies to the same email</h2>
+        <p class="story">On this fictional job, the electrician offers two ways to finish. The bill includes the Thursday visit. Which reply gives the buyer’s team enough evidence for that charge?</p>
+        <blockquote class="email">
+          <span class="sender">Sam Reed, electrician</span>
+          <p>“Two ways to finish at Banksia Rooms. We can come back after closing on Thursday for $400 ex GST, or bring an extra installer during normal hours on Friday for $400 ex GST. Which should I book?”</p>
+        </blockquote>
+        <p>Choose a reply to see what it supports.</p>
+        <div class="choices" id="reply-choices" role="group" aria-label="Example buyer replies" tabindex="-1">
+          <button type="button" class="reply" data-try-reply aria-controls="reply-result" aria-pressed="false">
+            <span data-reply-text>Please book Thursday after closing for $400 ex GST.</span>
+            <span class="try">Try the Thursday reply</span>
+          </button>
+          <button type="button" class="reply" data-try-reply aria-controls="reply-result" aria-pressed="false">
+            <span data-reply-text>Yes, go ahead.</span>
+            <span class="try">Try the short reply</span>
+          </button>
+        </div>
+        <section class="result" id="reply-result" aria-labelledby="finding-label" hidden>
+          <h3 id="finding-label" tabindex="-1"></h3>
+          <blockquote id="finding-reply"></blockquote>
+          <p id="finding-reason"></p>
+          <dl class="totals">
+            <div><dt>Invoice amount supported</dt><dd id="amount-supported"></dd></div>
+            <div><dt>Amount to query</dt><dd id="amount-query"></dd></div>
+          </dl>
+          <p>The disposal email asks for a price. That leaves the separate $200 charge open in either case.</p>
+          <p id="finding-followup" hidden></p>
+          <a class="back" href="#reply-choices">Back to the two replies</a>
+        </section>
+        <div id="reply-status" class="sr" role="status"></div>
+        <noscript><p>The interactive check needs JavaScript. You can read both outcomes below.</p></noscript>
+        <details class="compare">
+          <summary>Read both outcomes</summary>
+          <ul>
+            <li><strong>Thursday reply.</strong> It confirms the billed visit and price, bringing the supported amount to $5,200. Only the $200 disposal charge is open because the buyer asked for a price.</li>
+            <li><strong>Short reply.</strong> Either option costs $400. The buyer leaves the choice open, so only the $4,800 quote is supported. The visit and disposal leave $600 to query.</li>
+          </ul>
+        </details>
+        <a href="../demo/email-approvals.html#write-reply">Write your own reply in the full demo</a>
+      </section>
+      <section class="pilot" aria-labelledby="pilot-heading">
+        <h2 id="pilot-heading">A pilot with your invoices</h2>
+        <p>We’d start with one supplier or job type and 10–20 completed invoices, including routine bills and a few your team queried. You’d share redacted copies privately, along with the quotes, changes and approval records.</p>
+        <p>Your reviewer tells me what counts as approval. I compare the findings with their decisions, and we time a few reviews both ways. You receive the annotated invoices and a short report showing review time, missed issues and unnecessary queries. Your team keeps control of supplier contact and payment.</p>
+        <p class="invitation">Would you have 15 minutes to walk me through the last invoice your team queried?</p>
+      </section>
+    </div>
+  </main>
+  <script type="application/json" id="email-data">{{EMAIL_DATA}}</script>
+  <script type="application/json" id="reply-model">{{REPLY_MODEL}}</script>
+</body>
+</html>
