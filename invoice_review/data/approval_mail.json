@@ -1,0 +1,53 @@
+{
+  "job_ref": "BR-17",
+  "supplier": "Coastal Spark Electrical",
+  "base_source": {
+    "id": "Q-1040",
+    "description": "Electrical fit-out",
+    "excerpt": "Electrical fit-out to the issued floor plan, AUD 4,800 ex GST. After-hours attendance and disposal are outside this scope.",
+    "cents": 480000
+  },
+  "approvers": {"jo@banksiarooms.example": 50000},
+  "line_keys": {
+    "00000000-0000-4000-8000-000000000001": "base",
+    "00000000-0000-4000-8000-000000000002": "after_hours",
+    "00000000-0000-4000-8000-000000000003": "disposal"
+  },
+  "threads": [
+    {
+      "id": "T-17", "subject": "Access window for Banksia Rooms", "job_ref": "BR-17", "supplier": "Coastal Spark Electrical",
+      "messages": [
+        {"id": "M-101", "sender": "sam@coastalspark.example", "name": "Sam Reed", "date": "2026-10-12T09:05:00+10:00", "body": "The foyer is occupied during the day. We can bring the crew back after closing on Thursday for $400 ex GST. Should I book that slot?"},
+        {"id": "M-102", "sender": "jo@banksiarooms.example", "name": "Jo Bell", "date": "2026-10-12T09:34:00+10:00", "body": "Yes, I approve $400 ex GST for the crew to come back after closing on Thursday at Banksia Rooms. Please book it."}
+      ]
+    },
+    {
+      "id": "T-23", "subject": "Old light fittings at Banksia Rooms", "job_ref": "BR-17", "supplier": "Coastal Spark Electrical",
+      "messages": [
+        {"id": "M-201", "sender": "jo@banksiarooms.example", "name": "Jo Bell", "date": "2026-10-13T11:10:00+10:00", "body": "Could you price collection of the old fittings at Banksia Rooms? Please send the figure before booking."},
+        {"id": "M-202", "sender": "sam@coastalspark.example", "name": "Sam Reed", "date": "2026-10-13T11:48:00+10:00", "body": "Collection would be $200 ex GST. I'll wait for your confirmation."}
+      ]
+    },
+    {
+      "id": "T-31", "subject": "After-hours access at Fern Hall", "job_ref": "FH-21", "supplier": "Coastal Spark Electrical",
+      "messages": [
+        {"id": "M-301", "sender": "sam@coastalspark.example", "name": "Sam Reed", "date": "2026-10-12T08:45:00+10:00", "body": "The extra evening visit to Fern Hall on Wednesday is $400 ex GST. Can we go ahead?"},
+        {"id": "M-302", "sender": "jo@banksiarooms.example", "name": "Jo Bell", "date": "2026-10-12T09:12:00+10:00", "body": "Approved for $400 ex GST at Fern Hall. Book the Wednesday evening visit."}
+      ]
+    }
+  ],
+  "scenarios": [
+    {"id": "clear", "label": "Clear reply", "overrides": {}},
+    {
+      "id": "unclear", "label": "Unclear reply",
+      "overrides": {
+        "T-17": {
+          "messages": [
+            {"id": "M-111", "sender": "sam@coastalspark.example", "name": "Sam Reed", "date": "2026-10-12T09:05:00+10:00", "body": "Two ways to finish at Banksia Rooms. We can come back after closing on Thursday for $400 ex GST, or bring an extra installer during normal hours on Friday for $400 ex GST. Which should I book?"},
+            {"id": "M-112", "sender": "jo@banksiarooms.example", "name": "Jo Bell", "date": "2026-10-12T09:34:00+10:00", "body": "Yes, go ahead. Thanks, Jo."}
+          ]
+        }
+      }
+    }
+  ]
+}

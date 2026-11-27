@@ -17,7 +17,8 @@ class InvoiceReviewProtocolTests(unittest.IsolatedAsyncioTestCase):
         async with Client(process, read_timeout_seconds=30) as client:
             tools = {tool.name: tool for tool in (await client.list_tools()).tools}
             self.assertEqual(
-                set(tools), {"list_invoice_exceptions", "get_invoice_review", "get_source_record"}
+                set(tools), {"list_invoice_exceptions", "get_invoice_review", "get_source_record",
+                             "get_approval_email_packet"}
             )
             for tool in tools.values():
                 self.assertIs(tool.annotations.read_only_hint, True)
@@ -31,6 +32,12 @@ class InvoiceReviewProtocolTests(unittest.IsolatedAsyncioTestCase):
             ids = {row["invoice_id"] for row in queue.structured_content["invoices"]}
             self.assertIn("INV-1042", ids)
             self.assertNotIn("INV-1043", ids)
+
+            packet = await client.call_tool("get_approval_email_packet", {"example": "unclear"})
+            self.assertFalse(packet.is_error)
+            self.assertEqual(packet.structured_content["bill"]["number"], "INV-1042")
+            self.assertEqual({thread["id"] for thread in packet.structured_content["threads"]}, {"T-17", "T-23"})
+            self.assertNotIn("result", packet.structured_content)
 
             reference = {"invoice_id": "INV-1042"}
             recorded = await client.call_tool("get_invoice_review", reference)

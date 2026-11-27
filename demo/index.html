@@ -19,7 +19,8 @@
     .receipt {width:18px;height:23px;border:2px solid var(--plum);border-radius:2px;position:relative}
     .receipt::before,.receipt::after {content:"";position:absolute;height:2px;left:3px;background:var(--plum)}
     .receipt::before {top:5px;width:8px;box-shadow:0 4px var(--plum)}.receipt::after {top:13px;width:5px}
-    .offline {font-size:.82rem;color:var(--sub)}
+    .email-walk {color:var(--plum);font-size:.91rem;font-weight:650;text-underline-offset:3px}
+    .top .wrap {flex-wrap:wrap}
     header {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:31px 0 24px}
     h1 {font:500 clamp(2.5rem,5.4vw,4.4rem)/1.04 var(--serif);letter-spacing:-.047em}
     header p {max-width:62ch;color:var(--sub);margin-top:8px;font-size:1.04rem}
@@ -101,7 +102,7 @@
   </style>
 </head>
 <body>
-  <div class="top"><div class="wrap"><span class="brand"><span class="receipt" aria-hidden="true"></span>Quote-to-invoice review</span><span class="offline">Offline demo</span></div></div>
+  <div class="top"><div class="wrap"><span class="brand"><span class="receipt" aria-hidden="true"></span>Quote-to-invoice review</span><a class="email-walk" href="./email-approvals.html">Try the Xero bill and email walkthrough</a></div></div>
   <div class="wrap">
     <header>
       <div><h1>Invoice review</h1><p>See which charges the approved quote and variations cover, then inspect the records behind each decision.</p></div>

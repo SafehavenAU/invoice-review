@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Follow a fictional Xero bill into the original email replies and see which charges the evidence supports.">
+  <title>Email approvals | Invoice review</title>
+  <style>
+    :root {color-scheme:light;--ink:#2c2536;--sub:#5c5666;--plum:#4c365f;--line:#d8d4dd;--wash:#f5f4f7;--soft:#f0ecf4;--gold:#ffdf91;--green:#275e3b;--sans:"DM Sans","Segoe UI",Arial,sans-serif;--serif:"STIX Two Text",Cambria,Georgia,serif}
+    * {box-sizing:border-box}
+    body {margin:0;background:var(--wash);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+    h1,h2,h3,h4,p,dl,dt,dd,blockquote,fieldset,legend {margin:0}
+    button,input {font:inherit}
+    button,a,summary,input {touch-action:manipulation}
+    :focus-visible {outline:3px solid #89559f;outline-offset:3px}
+    [hidden] {display:none!important}
+    .wrap {width:min(1130px,calc(100% - 64px));margin-inline:auto}
+    nav {border-bottom:1px solid var(--line);background:#fff}
+    nav .wrap {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px 12px;min-height:51px;padding-block:9px}
+    nav a,.evidence-link {color:var(--plum);text-underline-offset:3px;font-weight:650}
+    nav a {font-size:.91rem}
+    .brand {display:flex;align-items:center;gap:9px;font-weight:650}
+    .receipt {display:inline-block;width:17px;height:22px;border:2px solid var(--plum);border-radius:2px;position:relative}
+    .receipt::after {content:"";position:absolute;left:3px;top:5px;width:7px;height:2px;background:var(--plum);box-shadow:0 4px var(--plum)}
+    header {padding:29px 0 21px}
+    h1 {font:500 clamp(2.45rem,5.1vw,4.05rem)/1.08 var(--serif);letter-spacing:-.045em}
+    header p {max-width:71ch;margin-top:5px;color:var(--sub);font-size:1.04rem}
+    h2 {font:600 1.55rem/1.2 var(--serif);letter-spacing:-.025em}
+    h3 {font-size:1.03rem;line-height:1.34} h4 {font-size:.97rem}
+    .setup {display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff}
+    .bill,.action {padding:21px 25px}
+    .bill {border-right:1px solid var(--line)}
+    .bill-head {display:flex;align-items:baseline;justify-content:space-between;gap:4px 12px;flex-wrap:wrap}
+    .bill-head span {color:var(--sub);font-size:.88rem}
+    .bill-meta {color:var(--sub);font-size:.92rem;margin:4px 0 10px;overflow-wrap:anywhere}
+    .bill-lines {border-top:1px solid var(--line);padding-top:6px}
+    .money-row {display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:3px 0}
+    .money-row dd,.metric strong {font-variant-numeric:tabular-nums;white-space:nowrap}
+    .total {border-top:1px solid var(--line);font-weight:700;margin-top:6px;padding-top:8px}
+    .quote {margin-top:7px;color:var(--sub);font-size:.88rem}
+    summary {cursor:pointer;color:var(--plum);font-weight:600}
+    .quote p {margin:5px 0}
+    .action {background:#faf8fc;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+    fieldset {border:0;min-width:0;padding:0}
+    legend {font:600 1.55rem/1.2 var(--serif);letter-spacing:-.025em}
+    .options {display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 13px}
+    .options label {display:flex;align-items:center;gap:6px;min-height:42px;border:1px solid #b4aabf;border-radius:6px;padding:6px 12px;cursor:pointer;color:var(--plum);background:#fff;font-weight:600}
+    .options label:has(input:checked) {background:var(--soft);border-color:var(--plum)}
+    .options input {width:16px;height:16px;margin:0;accent-color:var(--plum)}
+    .primary {background:var(--plum);color:#fff;border:1px solid var(--plum);padding:10px 17px;border-radius:6px;font-weight:650;cursor:pointer}
+    .primary:hover {background:#392746}
+    .note {color:var(--sub);font-size:.87rem;line-height:1.45;margin-top:11px;max-width:53ch}
+    .result {margin:23px 0 10px}
+    .result-head {display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:stretch;border:1px solid #c5bdcf;border-radius:10px;overflow:hidden;background:#fff}
+    .result-title {align-self:center;padding:14px 20px}
+    .result-title p {font-size:.9rem;color:var(--sub);margin-top:3px}
+    .metric {display:flex;flex-direction:column;justify-content:center;padding:12px 21px;border-left:1px solid var(--line);font-size:.87rem}
+    .metric strong {font:500 1.95rem/1.18 var(--serif)}
+    .to-query {background:var(--gold)}
+    .columns {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;align-items:start;margin:16px 0}
+    .findings,.inbox {min-width:0;background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+    .section-head {padding:15px 18px 12px;border-bottom:1px solid var(--line)}
+    .finding {padding:16px 18px}
+    .finding+.finding {border-top:1px solid var(--line)}
+    .line-head {display:flex;justify-content:space-between;align-items:baseline;gap:6px 12px;flex-wrap:wrap}
+    .verdict {font-size:.83rem;font-weight:700;color:#744603}
+    .verdict.supported {color:var(--green)}
+    .reason {font-size:.93rem;margin-top:6px}
+    .citation {border-left:3px solid #c7afd4;padding-left:10px;margin:9px 0}
+    .citation blockquote {font-size:.94rem;overflow-wrap:anywhere}
+    .evidence-link {display:inline-block;font-size:.84rem;margin-top:3px}
+    .question {font-size:.88rem;margin-top:10px;color:var(--sub)}
+    .question strong {color:var(--ink)}
+    .inbox .section-head {background:var(--plum);color:#fff}
+    .threads {display:grid;padding:6px 10px}
+    .thread {min-width:0;text-align:left;border:none;border-bottom:1px solid var(--line);border-left:3px solid transparent;background:transparent;padding:9px 10px;cursor:pointer;color:var(--ink);font-weight:620;overflow-wrap:anywhere}
+    .thread:last-child {border-bottom:0}
+    .thread[aria-pressed=true] {border-left-color:var(--plum);background:var(--soft)}
+    .thread small {display:block;font-size:.81rem;font-weight:400;color:var(--sub);margin-top:2px}
+    .conversation {border-top:1px solid var(--line);padding:15px 18px 6px}
+    .conversation > p {font-size:.83rem;color:var(--sub);margin:3px 0 7px;overflow-wrap:anywhere}
+    .message {padding:12px 0;border-top:1px solid var(--line);scroll-margin-top:12px;overflow-wrap:anywhere}
+    .message address {font-style:normal;font-size:.84rem;color:var(--sub)}
+    .message .body {white-space:pre-line;font-size:.93rem;margin-top:5px}
+    mark {background:#ffedba;color:inherit}
+    .authority {color:var(--green);font-size:.88rem;margin-top:7px}
+    .inbox .search-summary {font-size:.88rem;color:#f1eaf6;line-height:1.45;margin-top:4px}
+    .sr {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+    @media(max-width:710px){
+      .wrap {width:calc(100% - 28px)}
+      header {padding:20px 0 16px}
+      .setup,.columns {grid-template-columns:minmax(0,1fr)}
+      .bill,.action {padding:15px}
+      .bill {border-right:0;border-bottom:1px solid var(--line)}
+      .result-head {grid-template-columns:1fr 1fr}
+      .result-title {grid-column:1/-1}
+      .metric {padding:9px 15px;border-top:1px solid var(--line)}
+      .metric:nth-child(2) {border-left:0}
+      .columns {gap:13px}
+      .finding,.section-head,.conversation {padding-left:14px;padding-right:14px}
+    }
+    @media(max-width:390px){.options {gap:5px}.options label {padding:5px 8px}.brand {font-size:.93rem}}
+  </style>
+</head>
+<body>
+  <nav aria-label="Demo navigation"><div class="wrap"><span class="brand"><span class="receipt" aria-hidden="true"></span>Quote-to-invoice review</span><a href="./index.html">Back to invoice review</a></div></nav>
+  <main class="wrap">
+    <header><h1>Find the approval email</h1><p>A supplier has billed for extra work. Follow the charges from a sample Xero bill to the buyer’s exact reply.</p></header>
+    <noscript>Enable JavaScript to try the two email scenarios.</noscript>
+    <section class="setup" aria-label="Sample bill and review options" id="setup" hidden>
+      <article class="bill" aria-labelledby="bill-title">
+        <div class="bill-head"><h2 id="bill-title">Sample Xero bill</h2><span id="bill-number"></span></div>
+        <p class="bill-meta" id="bill-meta"></p>
+        <dl class="bill-lines" id="bill-lines"></dl>
+        <details class="quote"><summary>View the accepted quote</summary><p id="base-excerpt"></p></details>
+      </article>
+      <div class="action">
+        <fieldset><legend>Choose the buyer’s reply</legend><div class="options" id="scenarios"></div></fieldset>
+        <button type="button" class="primary" id="find-approval" aria-controls="result" aria-expanded="false">Review email evidence</button>
+        <p class="note">These records are fictional. The browser replays an AI reading prepared for each example. Rules check the sender’s authority and the amounts.</p>
+      </div>
+    </section>
+    <section class="result" id="result" aria-labelledby="result-title" hidden>
+      <div class="result-head">
+        <div class="result-title"><h2 id="result-title" tabindex="-1">Review result</h2><p id="result-description"></p></div>
+        <div class="metric">Supported<strong id="supported"></strong></div>
+        <div class="metric to-query">To query<strong id="query"></strong></div>
+      </div>
+      <div class="columns">
+        <section class="findings" aria-labelledby="findings-title"><div class="section-head"><h2 id="findings-title">What the AI found</h2></div><div id="findings"></div></section>
+        <section class="inbox" aria-labelledby="inbox-title">
+          <div class="section-head"><h2 id="inbox-title">Email threads checked</h2><p class="search-summary" id="search-summary"></p></div>
+          <div class="threads" role="group" aria-label="Choose an email thread" id="threads"></div>
+          <div class="conversation" id="conversation"><h3 id="thread-subject"></h3><p id="thread-meta"></p><div id="messages"></div></div>
+        </section>
+      </div>
+    </section>
+    <div id="announcement" role="status" class="sr" aria-live="polite"></div>
+  </main>
+  <script type="application/json" id="email-data">{"bill":{"base_cents":480000,"base_source":{"excerpt":"Electrical fit-out to the issued floor plan, AUD 4,800 ex GST. After-hours attendance and disposal are outside this scope.","id":"Q-1040"},"currency":"AUD","issued_on":"2026-10-16","job_ref":"BR-17","lines":[{"cents":480000,"description":"Electrical fit-out","id":"base"},{"cents":40000,"description":"After-hours access","id":"after_hours"},{"cents":20000,"description":"Disposal of removed fittings","id":"disposal"}],"number":"INV-1042","supplier":"Coastal Spark Electrical","total_cents":540000},"scenarios":[{"id":"clear","label":"Clear reply","result":{"items":[{"amount_cents":40000,"authority_note":"Jo Bell can approve up to $500. Their reply names the billed amount of $400.","draft_question":"","line_id":"after_hours","quotes":[{"message_id":"M-101","text":"We can bring the crew back after closing on Thursday for $400 ex GST."},{"message_id":"M-102","text":"I approve $400 ex GST for the crew to come back after closing on Thursday at Banksia Rooms. Please book it."}],"reason":"Jo explicitly approved $400 ex GST for the crew's Thursday return after closing and asked Sam to book it.","status":"supported","thread_id":"T-17"},{"amount_cents":20000,"draft_question":"Jo, did you approve the $200 ex GST quote for collecting the old fittings?","line_id":"disposal","quotes":[{"message_id":"M-201","text":"Could you price collection of the old fittings at Banksia Rooms? Please send the figure before booking."},{"message_id":"M-202","text":"Collection would be $200 ex GST. I'll wait for your confirmation."}],"reason":"Jo asked for the price of collecting the old fittings. Sam quoted $200 ex GST and said he would wait for confirmation.","status":"price_only","thread_id":"T-23"}],"query_cents":20000,"supported_cents":520000},"threads":[{"eligible":true,"id":"T-17","job_ref":"BR-17","messages":[{"body":"The foyer is occupied during the day. We can bring the crew back after closing on Thursday for $400 ex GST. Should I book that slot?","date":"2026-10-12T09:05:00+10:00","id":"M-101","name":"Sam Reed","sender":"sam@coastalspark.example"},{"body":"Yes, I approve $400 ex GST for the crew to come back after closing on Thursday at Banksia Rooms. Please book it.","date":"2026-10-12T09:34:00+10:00","id":"M-102","name":"Jo Bell","sender":"jo@banksiarooms.example"}],"reason":"Same job and supplier as the bill.","subject":"Access window for Banksia Rooms","supplier":"Coastal Spark Electrical"},{"eligible":true,"id":"T-23","job_ref":"BR-17","messages":[{"body":"Could you price collection of the old fittings at Banksia Rooms? Please send the figure before booking.","date":"2026-10-13T11:10:00+10:00","id":"M-201","name":"Jo Bell","sender":"jo@banksiarooms.example"},{"body":"Collection would be $200 ex GST. I'll wait for your confirmation.","date":"2026-10-13T11:48:00+10:00","id":"M-202","name":"Sam Reed","sender":"sam@coastalspark.example"}],"reason":"Same job and supplier as the bill.","subject":"Old light fittings at Banksia Rooms","supplier":"Coastal Spark Electrical"},{"eligible":false,"id":"T-31","job_ref":"FH-21","messages":[{"body":"The extra evening visit to Fern Hall on Wednesday is $400 ex GST. Can we go ahead?","date":"2026-10-12T08:45:00+10:00","id":"M-301","name":"Sam Reed","sender":"sam@coastalspark.example"},{"body":"Approved for $400 ex GST at Fern Hall. Book the Wednesday evening visit.","date":"2026-10-12T09:12:00+10:00","id":"M-302","name":"Jo Bell","sender":"jo@banksiarooms.example"}],"reason":"Different job reference (FH-21).","subject":"After-hours access at Fern Hall","supplier":"Coastal Spark Electrical"}]},{"id":"unclear","label":"Unclear reply","result":{"items":[{"amount_cents":40000,"draft_question":"Jo, which $400 ex GST option did you mean to book for Banksia Rooms, Thursday after closing or the extra installer on Friday?","line_id":"after_hours","quotes":[{"message_id":"M-111","text":"We can come back after closing on Thursday for $400 ex GST, or bring an extra installer during normal hours on Friday for $400 ex GST."},{"message_id":"M-112","text":"Yes, go ahead."}],"reason":"Sam offered two ways to finish for the same price. Jo said to go ahead without choosing between Thursday after closing and Friday during normal hours.","status":"unclear","thread_id":"T-17"},{"amount_cents":20000,"draft_question":"Jo, did you approve collection of the old fittings at $200 ex GST after receiving Sam's quote?","line_id":"disposal","quotes":[{"message_id":"M-201","text":"Could you price collection of the old fittings at Banksia Rooms? Please send the figure before booking."},{"message_id":"M-202","text":"Collection would be $200 ex GST. I'll wait for your confirmation."}],"reason":"Jo requested a price before booking collection of the old fittings. Sam quoted $200 ex GST and was waiting for Jo to confirm.","status":"price_only","thread_id":"T-23"}],"query_cents":60000,"supported_cents":480000},"threads":[{"eligible":true,"id":"T-17","job_ref":"BR-17","messages":[{"body":"Two ways to finish at Banksia Rooms. We can come back after closing on Thursday for $400 ex GST, or bring an extra installer during normal hours on Friday for $400 ex GST. Which should I book?","date":"2026-10-12T09:05:00+10:00","id":"M-111","name":"Sam Reed","sender":"sam@coastalspark.example"},{"body":"Yes, go ahead. Thanks, Jo.","date":"2026-10-12T09:34:00+10:00","id":"M-112","name":"Jo Bell","sender":"jo@banksiarooms.example"}],"reason":"Same job and supplier as the bill.","subject":"Access window for Banksia Rooms","supplier":"Coastal Spark Electrical"},{"eligible":true,"id":"T-23","job_ref":"BR-17","messages":[{"body":"Could you price collection of the old fittings at Banksia Rooms? Please send the figure before booking.","date":"2026-10-13T11:10:00+10:00","id":"M-201","name":"Jo Bell","sender":"jo@banksiarooms.example"},{"body":"Collection would be $200 ex GST. I'll wait for your confirmation.","date":"2026-10-13T11:48:00+10:00","id":"M-202","name":"Sam Reed","sender":"sam@coastalspark.example"}],"reason":"Same job and supplier as the bill.","subject":"Old light fittings at Banksia Rooms","supplier":"Coastal Spark Electrical"},{"eligible":false,"id":"T-31","job_ref":"FH-21","messages":[{"body":"The extra evening visit to Fern Hall on Wednesday is $400 ex GST. Can we go ahead?","date":"2026-10-12T08:45:00+10:00","id":"M-301","name":"Sam Reed","sender":"sam@coastalspark.example"},{"body":"Approved for $400 ex GST at Fern Hall. Book the Wednesday evening visit.","date":"2026-10-12T09:12:00+10:00","id":"M-302","name":"Jo Bell","sender":"jo@banksiarooms.example"}],"reason":"Different job reference (FH-21).","subject":"After-hours access at Fern Hall","supplier":"Coastal Spark Electrical"}]}]}</script>
+  <script>
+    'use strict';
+    const {bill,scenarios} = JSON.parse(document.getElementById('email-data').textContent);
+    const byId = id => document.getElementById(id);
+    const node = (tag, text, cls) => {
+      const element = document.createElement(tag);
+      if (text !== undefined) element.textContent = text;
+      if (cls) element.className = cls;
+      return element;
+    };
+    const money = cents => Intl.NumberFormat('en-AU',{style:'currency',currency:bill.currency,
+      minimumFractionDigits:cents % 100 ? 2 : 0,maximumFractionDigits:2}).format(cents / 100);
+    const dateText = value => {
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return value;
+      const format = {day:'numeric',month:'short',year:'numeric',timeZone:'Australia/Brisbane'};
+      if (value.includes('T')) { format.hour = 'numeric'; format.minute = '2-digit'; }
+      return parsed.toLocaleString('en-AU',format);
+    };
+    const lines = new Map(bill.lines.map(line => [line.id,line]));
+    let scenario = scenarios[0];
+    function moneyRow(label, cents, cls) {
+      const div = node('div',undefined,'money-row' + (cls ? ' ' + cls : ''));
+      div.append(node('dt',label),node('dd',money(cents)));
+      return div;
+    }
+    function renderBill() {
+      byId('bill-number').textContent = bill.number;
+      byId('bill-meta').textContent = bill.supplier + ' / ' + bill.job_ref + ' / ' + dateText(bill.issued_on);
+      byId('bill-lines').replaceChildren(...bill.lines.map(line => moneyRow(line.description,line.cents)),moneyRow('Total (AUD ex GST)',bill.total_cents,'total'));
+      byId('base-excerpt').textContent = bill.base_source.id + ' / ' + bill.base_source.excerpt;
+    }
+    function options() {
+      scenarios.forEach((item,index) => {
+        const label = node('label');
+        const radio = node('input');
+        radio.type='radio';radio.name='reply';radio.value=item.id;radio.checked=index===0;
+        radio.addEventListener('change',() => {
+          if (!radio.checked) return;
+          scenario = item;
+          byId('result').hidden=true;
+          byId('find-approval').setAttribute('aria-expanded','false');
+          byId('announcement').textContent=item.label + '. Choose Review email evidence to see the result.';
+        });
+        label.append(radio,document.createTextNode(item.label));
+        byId('scenarios').append(label);
+      });
+    }
+    function highlight(body, excerpts) {
+      const fragment = document.createDocumentFragment();
+      const spans = excerpts.filter(Boolean).map(text => ({text,start:body.indexOf(text)}))
+        .filter(match => match.start >= 0).sort((a,b) => a.start-b.start || b.text.length-a.text.length);
+      let offset=0;
+      for (const span of spans) {
+        if (span.start < offset) continue;
+        fragment.append(document.createTextNode(body.slice(offset,span.start)),node('mark',span.text));
+        offset = span.start + span.text.length;
+      }
+      fragment.append(document.createTextNode(body.slice(offset)));
+      return fragment;
+    }
+    function showThread(threadId, focusMessage) {
+      const thread = scenario.threads.find(thread => thread.id === threadId);
+      if (!thread) return;
+      for (const btn of byId('threads').children) btn.setAttribute('aria-pressed',String(btn.dataset.threadId===threadId));
+      byId('thread-subject').textContent=thread.subject;
+      byId('thread-meta').textContent=[thread.job_ref,thread.supplier,thread.id].join(' / ');
+      const quotes = scenario.result.items.filter(item => item.thread_id === threadId).flatMap(item => item.quotes);
+      byId('messages').replaceChildren(...thread.messages.map(message => {
+        const article=node('article',undefined,'message');
+        article.id='msg-'+message.id;article.tabIndex=-1;
+        const sender=node('h4',message.name);
+        const meta=node('address',[message.sender,dateText(message.date),message.id].join(' / '));
+        const body=node('p',undefined,'body');
+        body.append(highlight(message.body,quotes.filter(q => q.message_id === message.id).map(q => q.text)));
+        article.append(sender,meta,body);
+        return article;
+      }));
+      if (focusMessage) byId('msg-'+focusMessage)?.focus();
+    }
+    function renderThreads() {
+      const eligible=scenario.threads.filter(thread => thread.eligible).length;
+      byId('search-summary').textContent=eligible+' of '+scenario.threads.length+' match the supplier and job '+bill.job_ref+'. The AI read the matching threads.';
+      byId('threads').replaceChildren(...scenario.threads.map(thread => {
+        const btn=node('button',undefined,'thread');
+        btn.type='button';btn.dataset.threadId=thread.id;btn.setAttribute('aria-controls','conversation');
+        btn.append(node('span',thread.subject),node('small',(thread.eligible ? 'Considered. ' : 'Excluded. ') + thread.reason));
+        btn.addEventListener('click',() => {
+          showThread(thread.id);
+          byId('announcement').textContent='Showing ' + thread.subject + '.';
+        });
+        return btn;
+      }));
+    }
+    const verdicts={supported:'Supported',unclear:'Needs clarification',price_only:'Price requested',review:'Review needed'};
+    function renderFindings() {
+      byId('findings').replaceChildren(...scenario.result.items.map(item => {
+        const article=node('article',undefined,'finding');
+        article.dataset.lineId=item.line_id;
+        const head=node('div',undefined,'line-head');
+        head.append(node('h3',money(item.amount_cents)+' · '+lines.get(item.line_id).description),
+          node('span',verdicts[item.status] || 'Review needed','verdict '+item.status));
+        article.append(head,node('p',item.reason,'reason'));
+        if (item.authority_note) article.append(node('p',item.authority_note,'authority'));
+        const thread=scenario.threads.find(thread => thread.id===item.thread_id);
+        for (const quote of item.quotes) {
+          const citation=node('div',undefined,'citation');
+          const message=thread?.messages.find(message => message.id===quote.message_id);
+          const source=node('a',(message ? message.name+' · ' : '')+'Read email '+quote.message_id,'evidence-link');
+          source.href='#msg-'+encodeURIComponent(quote.message_id);
+          source.addEventListener('click',event => {
+            event.preventDefault();
+            showThread(item.thread_id,quote.message_id);
+          });
+          citation.append(node('blockquote','“'+quote.text+'”'),source);
+          article.append(citation);
+        }
+        if (item.draft_question) {
+          const prompt=node('p',undefined,'question');
+          prompt.append(node('strong','Suggested question. '),document.createTextNode(item.draft_question));
+          article.append(prompt);
+        }
+        return article;
+      }));
+    }
+    function review() {
+      const result=scenario.result;
+      byId('supported').textContent=money(result.supported_cents);
+      byId('query').textContent=money(result.query_cents);
+      byId('result-description').textContent='The accepted quote covers '+money(bill.base_cents)+'. Your reviewer decides which questions to send. This demo sends no email.';
+      renderFindings();renderThreads();
+      const first=result.items.find(item => item.thread_id)?.thread_id || scenario.threads[0]?.id;
+      if (first) showThread(first);
+      byId('result').hidden=false;
+      byId('find-approval').setAttribute('aria-expanded','true');
+      byId('result-title').focus();
+      byId('announcement').textContent=scenario.label+'. '+money(result.supported_cents)+' supported. '+money(result.query_cents)+' to query.';
+    }
+    renderBill();options();
+    byId('setup').hidden=false;
+    byId('find-approval').addEventListener('click',review);
+  </script>
+</body>
+</html>

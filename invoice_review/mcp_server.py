@@ -8,6 +8,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
 from . import core
+from .email_review import model_input
 
 
 Scenario = Literal["recorded", "variation_draft"]
@@ -54,6 +55,16 @@ def get_invoice_review(invoice_id: str, scenario: Scenario = "recorded") -> dict
 def get_source_record(source_id: str, scenario: Scenario = "recorded") -> dict[str, Any]:
     """Read one fictional record's ID, document kind, title, status and evidence excerpt."""
     return _read_record(core.get_source_record, source_id, scenario)
+
+
+@server.tool(annotations=READ_ONLY)
+def get_approval_email_packet(example: Literal["clear", "unclear"]) -> dict[str, Any]:
+    """Read the sample Xero bill extras and candidate email threads for a fresh interpretation.
+
+    Both examples concern INV-1042. Returns original message text and IDs after matching
+    the supplier and job. Cite verbatim evidence and flag ambiguous replies for a reviewer.
+    """
+    return model_input(example)
 
 
 def main() -> None:

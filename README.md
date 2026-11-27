@@ -2,9 +2,9 @@
 
 An operations manager has a $5,400 supplier invoice and a $4,800 quote. Which extra charges have supporting paperwork? This small, read-only application puts each invoice line beside its evidence and drafts a question for the supplier.
 
-**[Open the live business demo](https://safehavenau.github.io/invoice-review/demo/)** · **[Download the example invoice and evidence](samples/INV-1042.pdf)** · **[Read the architecture, stack choices and pilot plan](docs/v1-plan.md)**
+**[Review a Xero bill against approval emails](https://safehavenau.github.io/invoice-review/demo/email-approvals.html)** · **[Review the original invoice and variations](https://safehavenau.github.io/invoice-review/demo/)** · **[Download the example invoice and evidence](samples/INV-1042.pdf)** · **[Read the architecture and pilot plan](docs/v1-plan.md)**
 
-The live demo opens directly in a browser and uses fictional records. For an offline presentation, download the repo and open `demo/index.html`.
+Both walkthroughs use fictional records and work offline. To present them locally, download the repo and open `demo/index.html`.
 
 ![Example review showing a $200 disposal line and the underlying request](docs/demo-preview.png)
 
@@ -15,6 +15,16 @@ The live demo opens directly in a browser and uses fictional records. For an off
 3. Select the $400 after-hours line and inspect the approved variation. Switch to the draft-variation scenario. The same work description now leaves $600 to query. Switch back to restore the recorded view.
 4. Open the painting invoice for a clean match, or the joinery invoice to see a shared allowance and an ambiguous line.
 
+## Find the approval email
+
+Open the [email walkthrough](https://safehavenau.github.io/invoice-review/demo/email-approvals.html), select **Clear reply**, and review the evidence. The sample Xero-format supplier bill includes a $400 after-hours visit and $200 for disposal. The app matches the supplier and the job reference on the bill, then passes the two matching conversations to the reader. You can inspect a third conversation to see why an approval for the same amount at Fern Hall belongs to a different job.
+
+Choose **Unclear reply** and review again. This time, the electrician offers two options at $400 each. The buyer replies “Yes, go ahead.” The saved AI reading flags the missing choice and proposes a clarification. That leaves $600 to query. Click a quoted passage to open the original message.
+
+**How the AI was used.** A Codex language model read the two fictional email packets during development using the [reading prompt](docs/email-reading-prompt.md). It received the candidate emails and bill lines without expected outcomes or scenario labels. It selected message IDs, quoted the relevant words and explained its reading. The public page replays those saved results locally. The build checks the input fingerprint, verifies exact quotations, checks the listed sender and spending limit for supported extras, and calculates the totals in integer cents. The $4,800 base line comes from the accepted quote. The walkthrough includes no connection to a Xero organisation or mailbox.
+
+The sample [accounts payable bill](invoice_review/data/xero_bill.json) follows the shape of Xero's Accounting API. Figures in the walkthrough exclude GST. Thread-level job and supplier tags and the approver list are provided by the [fictional mailbox fixture](invoice_review/data/approval_mail.json). A live pilot would need a reliable source for these fields. [Xero invoice documentation](https://developer.xero.com/documentation/api/accounting/invoices)
+
 “Supported” describes the scope and price visible in this packet. The person reviewing the invoice still decides whether the work was delivered and what happens next.
 
 | Sample packet | Billed | Supported | To query | What it exercises |
@@ -23,7 +33,7 @@ The live demo opens directly in a browser and uses fictional records. For an off
 | [INV-1043 · Painting](samples/INV-1043.pdf) | $980 | $980 | $0 | Two lines covered by an accepted quote |
 | [INV-1044 · Joinery](samples/INV-1044.pdf) | $940 | $800 | $140 | $100 over a shared allowance and $40 with an ambiguous description |
 
-All names and records are fictional. Amounts are AUD excluding GST. Page two of each PDF contains the purchasing evidence. The two JSON files under `invoice_review/data/` are the canonical inputs. The PDFs and the browser snapshot are generated from them.
+All names and records are fictional. Amounts shown for review are AUD excluding GST. Page two of each PDF contains the purchasing evidence. The original invoice walkthrough and PDFs use `invoices.json` and `evidence.json`; the email walkthrough uses the sample Xero bill, mailbox and published [AI readings](invoice_review/data/approval_ai_reads.json).
 
 ## Connect an assistant
 
@@ -42,8 +52,9 @@ Then ask: **“Which invoice has the largest amount to query? Show the amount, t
 | `list_invoice_exceptions()` | Recorded exceptions, sorted by amount to query |
 | `get_invoice_review(invoice_id, scenario="recorded")` | Amounts in integer cents, each line's reason and source IDs, and a draft question |
 | `get_source_record(source_id, scenario="recorded")` | Document type, effective status and the underlying excerpt |
+| `get_approval_email_packet(example="clear" or "unclear")` | Sample bill extras and eligible original emails for a connected assistant to interpret afresh |
 
-Pass `variation_draft` on both the review and the source lookup to inspect the hypothetical state for INV-1042. The assistant can retrieve evidence and explain it. The deterministic matcher uses known descriptions, and Python calculates the supported amount from recorded approvals and remaining allowances. The packaged demo runs without a model call. Free-text matching by a model is a proposed experiment in the plan.
+Pass `variation_draft` on both the original review and source lookup to inspect the hypothetical document status for INV-1042. To try your own assistant on email, ask it to call `get_approval_email_packet` with `unclear` and explain which work was approved, quoting message IDs. The two walkthroughs are independent evidence examples for the same bill.
 
 ## Try the API, SQL report and tests
 
@@ -78,7 +89,8 @@ docker run --rm -p 127.0.0.1:8000:8000 invoice-review-demo:0.1 uvicorn invoice_r
 
 ```text
 invoice_review/core.py         matching, money and source rules
-invoice_review/data/           three invoices and six evidence documents
+invoice_review/email_review.py Xero bill parsing, email selection and evidence checks
+invoice_review/data/           fictional bills, job records, emails and saved AI readings
 invoice_review/mcp_server.py   local MCP tools
 invoice_review/http_api.py     read-only HTTP interface and OpenAPI schema
 demo/                          self-contained browser demo and template
@@ -90,4 +102,4 @@ tests/                         business rules, HTTP contract and MCP protocol
 docs/v1-plan.md                architecture, integrations and next experiment
 ```
 
-After editing fixtures, regenerate the browser demo with `python scripts/build_demo.py` and the PDFs with `uv run --no-project --script scripts/build_samples.py`. The browser generator needs only the Python standard library.
+Regenerate the browser pages with `python scripts/build_demo.py` and `python scripts/build_email_demo.py`. Both generators use the Python standard library. To refresh the email reading after changing the model inputs, supply the output of `invoice_review.email_review.model_input(example)` and the published reading prompt to a model. Save its response in the corresponding entry of `approval_ai_reads.json` with the new `input_digest(payload)`, then rebuild and test. Regenerate the printable invoices with `uv run --no-project --script scripts/build_samples.py`.

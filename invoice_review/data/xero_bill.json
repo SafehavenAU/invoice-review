@@ -1,0 +1,37 @@
+{
+  "Invoices": [
+    {
+      "Type": "ACCPAY",
+      "InvoiceID": "00000000-0000-4000-8000-000000001042",
+      "InvoiceNumber": "INV-1042",
+      "Status": "DRAFT",
+      "Contact": {"Name": "Coastal Spark Electrical"},
+      "DateString": "2026-10-16",
+      "CurrencyCode": "AUD",
+      "LineAmountTypes": "Exclusive",
+      "LineItems": [
+        {
+          "LineItemID": "00000000-0000-4000-8000-000000000001",
+          "Description": "Electrical fit-out",
+          "Quantity": 1, "UnitAmount": 4800.00, "LineAmount": 4800.00, "TaxAmount": 480.00,
+          "Tracking": [{"Name": "Job", "Option": "BR-17"}]
+        },
+        {
+          "LineItemID": "00000000-0000-4000-8000-000000000002",
+          "Description": "After-hours access",
+          "Quantity": 1, "UnitAmount": 400.00, "LineAmount": 400.00, "TaxAmount": 40.00,
+          "Tracking": [{"Name": "Job", "Option": "BR-17"}]
+        },
+        {
+          "LineItemID": "00000000-0000-4000-8000-000000000003",
+          "Description": "Disposal of removed fittings",
+          "Quantity": 1, "UnitAmount": 200.00, "LineAmount": 200.00, "TaxAmount": 20.00,
+          "Tracking": [{"Name": "Job", "Option": "BR-17"}]
+        }
+      ],
+      "SubTotal": 5400.00,
+      "TotalTax": 540.00,
+      "Total": 5940.00
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "method": "Codex read two fictional evidence packets during development using docs/email-reading-prompt.md. The reader received the shortlisted bill lines and emails with no scenario labels, expected outcomes or tests. The public page replays these saved interpretations.",
+  "scenarios": {
+    "clear": {
+      "input_sha256": "a5f014c7872245a268d007ffb6f5d56405d59d13f4e2c1edd65fbd8f36851e81",
+      "items": [
+        {
+          "line_id": "after_hours",
+          "interpretation": "explicit_approval",
+          "thread_id": "T-17",
+          "quotes": [
+            {
+              "message_id": "M-101",
+              "text": "We can bring the crew back after closing on Thursday for $400 ex GST."
+            },
+            {
+              "message_id": "M-102",
+              "text": "I approve $400 ex GST for the crew to come back after closing on Thursday at Banksia Rooms. Please book it."
+            }
+          ],
+          "approved_cents": 40000,
+          "approver_message_id": "M-102",
+          "reason": "Jo explicitly approved $400 ex GST for the crew's Thursday return after closing and asked Sam to book it.",
+          "draft_question": ""
+        },
+        {
+          "line_id": "disposal",
+          "interpretation": "price_request",
+          "thread_id": "T-23",
+          "quotes": [
+            {
+              "message_id": "M-201",
+              "text": "Could you price collection of the old fittings at Banksia Rooms? Please send the figure before booking."
+            },
+            {
+              "message_id": "M-202",
+              "text": "Collection would be $200 ex GST. I'll wait for your confirmation."
+            }
+          ],
+          "approved_cents": null,
+          "approver_message_id": null,
+          "reason": "Jo asked for the price of collecting the old fittings. Sam quoted $200 ex GST and said he would wait for confirmation.",
+          "draft_question": "Jo, did you approve the $200 ex GST quote for collecting the old fittings?"
+        }
+      ]
+    },
+    "unclear": {
+      "input_sha256": "0a667b6652cc4e534c1685c325c856e7f56cfdcfe70b1d20e1ed2a6f36eac643",
+      "items": [
+        {
+          "line_id": "after_hours",
+          "interpretation": "ambiguous",
+          "thread_id": "T-17",
+          "quotes": [
+            {
+              "message_id": "M-111",
+              "text": "We can come back after closing on Thursday for $400 ex GST, or bring an extra installer during normal hours on Friday for $400 ex GST."
+            },
+            {
+              "message_id": "M-112",
+              "text": "Yes, go ahead."
+            }
+          ],
+          "approved_cents": null,
+          "approver_message_id": null,
+          "reason": "Sam offered two ways to finish for the same price. Jo said to go ahead without choosing between Thursday after closing and Friday during normal hours.",
+          "draft_question": "Jo, which $400 ex GST option did you mean to book for Banksia Rooms, Thursday after closing or the extra installer on Friday?"
+        },
+        {
+          "line_id": "disposal",
+          "interpretation": "price_request",
+          "thread_id": "T-23",
+          "quotes": [
+            {
+              "message_id": "M-201",
+              "text": "Could you price collection of the old fittings at Banksia Rooms? Please send the figure before booking."
+            },
+            {
+              "message_id": "M-202",
+              "text": "Collection would be $200 ex GST. I'll wait for your confirmation."
+            }
+          ],
+          "approved_cents": null,
+          "approver_message_id": null,
+          "reason": "Jo requested a price before booking collection of the old fittings. Sam quoted $200 ex GST and was waiting for Jo to confirm.",
+          "draft_question": "Jo, did you approve collection of the old fittings at $200 ex GST after receiving Sam's quote?"
+        }
+      ]
+    }
+  }
+}
