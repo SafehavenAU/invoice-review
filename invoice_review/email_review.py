@@ -214,4 +214,13 @@ def build_bundle():
         result = review_scenario(bill, threads, mail["approvers"], recordings[scenario["id"]])
         scenarios.append({"id": scenario["id"], "label": scenario["label"],
                           "threads": threads, "result": result})
-    return {"bill": bill, "scenarios": scenarios}
+    editor = mail["reply_editor"]
+    original = next(s for s in scenarios if s["id"] == editor["template_scenario"])
+    thread = next(t for t in original["threads"] if t["id"] == editor["thread_id"] and t["eligible"])
+    messages = {m["id"]: m for m in thread["messages"]}
+    buyer = messages[editor["buyer_message_id"]]
+    if editor["offer_message_id"] not in messages or editor["line_id"] not in {i["line_id"] for i in original["result"]["items"]}:
+        raise ValueError("The reply editor must reference a supplier offer and an extra on this bill.")
+    return {"bill": bill, "scenarios": scenarios,
+            "reply_editor": {**editor, "buyer": buyer["name"], "buyer_email": buyer["sender"],
+                             "approval_limit_cents": mail["approvers"][buyer["sender"]]}}

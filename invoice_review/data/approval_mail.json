@@ -8,6 +8,10 @@
     "cents": 480000
   },
   "approvers": {"jo@banksiarooms.example": 50000},
+  "reply_editor": {
+    "template_scenario": "unclear", "thread_id": "T-17", "line_id": "after_hours",
+    "offer_message_id": "M-111", "buyer_message_id": "M-112", "max_length": 1000
+  },
   "line_keys": {
     "00000000-0000-4000-8000-000000000001": "base",
     "00000000-0000-4000-8000-000000000002": "after_hours",

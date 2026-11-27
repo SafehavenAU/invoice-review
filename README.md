@@ -2,7 +2,7 @@
 
 An operations manager has a $5,400 supplier invoice and a $4,800 quote. Which extra charges have supporting paperwork? This small, read-only application puts each invoice line beside its evidence and drafts a question for the supplier.
 
-**[Review a Xero bill against approval emails](https://safehavenau.github.io/invoice-review/demo/email-approvals.html)** · **[Review the original invoice and variations](https://safehavenau.github.io/invoice-review/demo/)** · **[Download the example invoice and evidence](samples/INV-1042.pdf)** · **[Read the architecture and pilot plan](docs/v1-plan.md)**
+**[Write your own approval reply](https://safehavenau.github.io/invoice-review/demo/email-approvals.html#write-reply)** · **[Review the original invoice and variations](https://safehavenau.github.io/invoice-review/demo/)** · **[Download the example invoice and evidence](samples/INV-1042.pdf)** · **[Read the architecture and pilot plan](docs/v1-plan.md)**
 
 Both walkthroughs use fictional records and work offline. To present them locally, download the repo and open `demo/index.html`.
 
@@ -21,7 +21,11 @@ Open the [email walkthrough](https://safehavenau.github.io/invoice-review/demo/e
 
 Choose **Unclear reply** and review again. This time, the electrician offers two options at $400 each. The buyer replies “Yes, go ahead.” The saved AI reading flags the missing choice and proposes a clarification. That leaves $600 to query. Click a quoted passage to open the original message.
 
-**How the AI was used.** A Codex language model read the two fictional email packets during development using the [reading prompt](docs/email-reading-prompt.md). It received the candidate emails and bill lines without expected outcomes or scenario labels. It selected message IDs, quoted the relevant words and explained its reading. The public page replays those saved results locally. The build checks the input fingerprint, verifies exact quotations, checks the listed sender and spending limit for supported extras, and calculates the totals in integer cents. The $4,800 base line comes from the accepted quote. The walkthrough includes no connection to a Xero organisation or mailbox.
+Choose **Write your own reply** to answer the two-option email as Jo Bell, the buyer. Try “Please book Thursday after closing for $400 ex GST.” Then change it to “Please book the extra installer on Friday for $400 ex GST.” The price is identical. Only the first reply supports the billed after-hours visit. Each result shows your words, the reason for the finding and the amount still to query. An open charge includes a question for the reviewer to ask. [Open the reply editor](https://safehavenau.github.io/invoice-review/demo/email-approvals.html#write-reply)
+
+**How the AI reads your reply.** A small English text classifier trained on fictional replies runs when you choose **Analyse my reply**. It estimates whether the wording expresses approval, refusal, a condition, a question or uncertainty. Purchasing rules then check the offered work, amount, job and buyer's spending limit. They flag conflicting terms or unfamiliar wording for a person to review. The explanation and suggested question come from the check that produced the finding. The analysis runs in your browser. The page neither sends nor saves your reply. [Training examples](invoice_review/data/reply_training.json) · [Purchasing checks](demo/reply-policy.js)
+
+**How the two saved examples were made.** A Codex language model read the fictional email packets during development. It received the candidate emails and bill lines without expected outcomes or scenario labels. It selected message IDs, quoted the relevant words and explained its reading. The build checks the input fingerprint and exact quotations, checks the sender and spending limit for supported extras, and adds the figures in integer cents. The $4,800 base line comes from the accepted quote. [Reading prompt](docs/email-reading-prompt.md)
 
 The sample [accounts payable bill](invoice_review/data/xero_bill.json) follows the shape of Xero's Accounting API. Figures in the walkthrough exclude GST. Thread-level job and supplier tags and the approver list are provided by the [fictional mailbox fixture](invoice_review/data/approval_mail.json). A live pilot would need a reliable source for these fields. [Xero invoice documentation](https://developer.xero.com/documentation/api/accounting/invoices)
 
@@ -68,6 +72,7 @@ The API starts on `127.0.0.1:8000`. Visit `/docs` for Swagger UI or `/openapi.js
 uv run --locked python -m unittest discover -s tests -v
 uv run --locked python scripts/evaluate.py
 uv run --locked python scripts/report.py
+node --test tests/custom_reply.test.cjs
 ```
 
 The evaluation compares supported cents and cited evidence IDs against four labelled fixture cases covering twelve line decisions. The SQL report aggregates the recorded cases by supplier using SQLite. The three invoices have $340 to query in total. The hypothetical draft scenario is excluded from the report.
@@ -102,4 +107,4 @@ tests/                         business rules, HTTP contract and MCP protocol
 docs/v1-plan.md                architecture, integrations and next experiment
 ```
 
-Regenerate the browser pages with `python scripts/build_demo.py` and `python scripts/build_email_demo.py`. Both generators use the Python standard library. To refresh the email reading after changing the model inputs, supply the output of `invoice_review.email_review.model_input(example)` and the published reading prompt to a model. Save its response in the corresponding entry of `approval_ai_reads.json` with the new `input_digest(payload)`, then rebuild and test. Regenerate the printable invoices with `uv run --no-project --script scripts/build_samples.py`.
+Regenerate the browser pages with `python scripts/build_demo.py` and `python scripts/build_email_demo.py`. Both generators use the Python standard library. After editing the reply training examples, run `python scripts/train_reply_model.py` before rebuilding the email page. To refresh a saved reading after changing its inputs, supply the output of `invoice_review.email_review.model_input(example)` and the published reading prompt to a model. Save its response in the corresponding entry of `approval_ai_reads.json` with the new `input_digest(payload)`, then rebuild and test. Regenerate the printable invoices with `uv run --no-project --script scripts/build_samples.py`.

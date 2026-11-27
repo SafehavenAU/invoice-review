@@ -3,7 +3,6 @@ import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
-from unittest.mock import patch
 
 from invoice_review import email_review as review
 from scripts import build_email_demo
@@ -102,12 +101,8 @@ class EmailApprovalTests(unittest.TestCase):
 
     def test_browser_artifact_matches_current_inputs_and_model_readings(self):
         demo = build_email_demo.ROOT / "demo"
-        template = (demo / "email-approvals.template.html").read_bytes()
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            (root / "demo").mkdir()
-            (root / "demo/email-approvals.template.html").write_bytes(template)
-            with patch.object(build_email_demo, "ROOT", root):
-                build_email_demo.main()
-            self.assertEqual((root / "demo/email-approvals.html").read_text(encoding="utf-8"),
+            output = Path(temp) / "email-approvals.html"
+            build_email_demo.main(output)
+            self.assertEqual(output.read_text(encoding="utf-8"),
                              (demo / "email-approvals.html").read_text(encoding="utf-8"))

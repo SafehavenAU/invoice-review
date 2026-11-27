@@ -10,7 +10,7 @@
     * {box-sizing:border-box}
     body {margin:0;background:var(--wash);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
     h1,h2,h3,h4,p,dl,dt,dd,blockquote,fieldset,legend {margin:0}
-    button,input {font:inherit}
+    button,input,textarea {font:inherit}
     button,a,summary,input {touch-action:manipulation}
     :focus-visible {outline:3px solid #89559f;outline-offset:3px}
     [hidden] {display:none!important}
@@ -50,6 +50,16 @@
     .primary {background:var(--plum);color:#fff;border:1px solid var(--plum);padding:10px 17px;border-radius:6px;font-weight:650;cursor:pointer}
     .primary:hover {background:#392746}
     .note {color:var(--sub);font-size:.87rem;line-height:1.45;margin-top:11px;max-width:53ch}
+    .composer {margin:18px 0;padding:21px 25px;background:#fff;border:1px solid var(--line);border-radius:11px;scroll-margin-top:12px}
+    .composer-inner {max-width:76ch}
+    .composer h2 + p {margin-top:5px;color:var(--sub)}
+    .offer {margin:17px 0;padding:11px 15px;border-left:3px solid #b69bc6;background:var(--wash)}
+    .offer p {white-space:pre-line;margin-top:3px;overflow-wrap:anywhere}
+    .composer label {display:block;font-weight:650}
+    .composer textarea {display:block;width:100%;min-height:94px;margin-top:5px;padding:9px 12px;border:1px solid #968ba0;border-radius:6px;resize:vertical;color:var(--ink);background:#fff}
+    .compose-info {display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:.84rem;color:var(--sub);margin:5px 0 12px}
+    .compose-info span {white-space:nowrap;font-variant-numeric:tabular-nums}
+    .compose-error {color:#873322;font-weight:600;margin:8px 0}
     .result {margin:23px 0 10px}
     .result-head {display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:stretch;border:1px solid #c5bdcf;border-radius:10px;overflow:hidden;background:#fff}
     .result-title {align-self:center;padding:14px 20px}
@@ -90,7 +100,7 @@
       .wrap {width:calc(100% - 28px)}
       header {padding:20px 0 16px}
       .setup,.columns {grid-template-columns:minmax(0,1fr)}
-      .bill,.action {padding:15px}
+      .bill,.action,.composer {padding:15px}
       .bill {border-right:0;border-bottom:1px solid var(--line)}
       .result-head {grid-template-columns:1fr 1fr}
       .result-title {grid-column:1/-1}
@@ -106,7 +116,7 @@
   <nav aria-label="Demo navigation"><div class="wrap"><span class="brand"><span class="receipt" aria-hidden="true"></span>Quote-to-invoice review</span><a href="./index.html">Back to invoice review</a></div></nav>
   <main class="wrap">
     <header><h1>Find the approval email</h1><p>A supplier has billed for extra work. Follow the charges from a sample Xero bill to the buyer’s exact reply.</p></header>
-    <noscript>Enable JavaScript to try the two email scenarios.</noscript>
+    <noscript>Enable JavaScript to review the sample emails or try your own reply.</noscript>
     <section class="setup" aria-label="Sample bill and review options" id="setup" hidden>
       <article class="bill" aria-labelledby="bill-title">
         <div class="bill-head"><h2 id="bill-title">Sample Xero bill</h2><span id="bill-number"></span></div>
@@ -117,12 +127,26 @@
       <div class="action">
         <fieldset><legend>Choose the buyer’s reply</legend><div class="options" id="scenarios"></div></fieldset>
         <button type="button" class="primary" id="find-approval" aria-controls="result" aria-expanded="false">Review email evidence</button>
-        <p class="note">These records are fictional. The browser replays an AI reading prepared for each example. Rules check the sender’s authority and the amounts.</p>
+        <p class="note" id="mode-note">These records are fictional. The browser replays an AI reading prepared for each example. Rules check the sender’s authority and the amounts.</p>
+      </div>
+    </section>
+    <section class="composer" id="write-reply" aria-labelledby="compose-title" hidden>
+      <div class="composer-inner">
+        <h2 id="compose-title">Reply to the supplier</h2>
+        <p id="compose-intro"></p>
+        <div class="offer"><h3 id="offer-sender"></h3><p id="offer-body"></p></div>
+        <form id="reply-form" autocomplete="off">
+          <label for="owner-reply" id="reply-label">Your reply</label>
+          <textarea id="owner-reply" rows="3" required aria-describedby="reply-help reply-count" placeholder="What would you tell the supplier?"></textarea>
+          <div class="compose-info"><p id="reply-help">A small AI model reads your wording in this browser. Your reply stays in this tab.</p><span id="reply-count"></span></div>
+          <p class="compose-error" id="reply-error" role="alert" hidden></p>
+          <button class="primary" id="analyse-reply" type="submit" aria-controls="result" aria-expanded="false">Analyse my reply</button>
+        </form>
       </div>
     </section>
     <section class="result" id="result" aria-labelledby="result-title" hidden>
       <div class="result-head">
-        <div class="result-title"><h2 id="result-title" tabindex="-1">Review result</h2><p id="result-description"></p></div>
+        <div class="result-title"><h2 id="result-title" tabindex="-1">Review result</h2><p id="result-description"></p><a class="evidence-link" href="#owner-reply" id="edit-reply" hidden>Edit my reply</a></div>
         <div class="metric">Supported<strong id="supported"></strong></div>
         <div class="metric to-query">To query<strong id="query"></strong></div>
       </div>
@@ -138,10 +162,15 @@
     <div id="announcement" role="status" class="sr" aria-live="polite"></div>
   </main>
   <script type="application/json" id="email-data">{{EMAIL_DATA}}</script>
+  <script type="application/json" id="reply-model">{{REPLY_MODEL}}</script>
+  <script>{{REPLY_INTENT_JS}}</script>
+  <script>{{REPLY_POLICY_JS}}</script>
   <script>
     'use strict';
-    const {bill,scenarios} = JSON.parse(document.getElementById('email-data').textContent);
     const byId = id => document.getElementById(id);
+    const emailData = JSON.parse(byId('email-data').textContent);
+    const {bill,scenarios,reply_editor:editor} = emailData;
+    const replyModel = JSON.parse(byId('reply-model').textContent);
     const node = (tag, text, cls) => {
       const element = document.createElement(tag);
       if (text !== undefined) element.textContent = text;
@@ -159,6 +188,8 @@
     };
     const lines = new Map(bill.lines.map(line => [line.id,line]));
     let scenario = scenarios[0];
+    let editingReply = false;
+    const savedModeNote = byId('mode-note').textContent;
     function moneyRow(label, cents, cls) {
       const div = node('div',undefined,'money-row' + (cls ? ' ' + cls : ''));
       div.append(node('dt',label),node('dd',money(cents)));
@@ -170,20 +201,84 @@
       byId('bill-lines').replaceChildren(...bill.lines.map(line => moneyRow(line.description,line.cents)),moneyRow('Total (AUD ex GST)',bill.total_cents,'total'));
       byId('base-excerpt').textContent = bill.base_source.id + ' / ' + bill.base_source.excerpt;
     }
+    function clearResult() {
+      byId('result').hidden = true;
+      byId('find-approval').setAttribute('aria-expanded','false');
+      byId('analyse-reply').setAttribute('aria-expanded','false');
+    }
+    function chooseMode(id) {
+      editingReply = id === 'custom';
+      scenario = scenarios.find(item => item.id === id);
+      document.querySelector('input[name="reply"][value="'+id+'"]').checked = true;
+      clearResult();
+      byId('write-reply').hidden = !editingReply;
+      byId('find-approval').hidden = editingReply;
+      byId('edit-reply').hidden = !editingReply;
+      byId('mode-note').textContent = editingReply
+        ? 'Your reply applies to the after-hours charge. The disposal charge has its own email thread.'
+        : savedModeNote;
+      byId('announcement').textContent = editingReply
+        ? 'Write your reply below the supplier’s email.'
+        : scenario.label+'. Choose Review email evidence to see the result.';
+    }
     function options() {
-      scenarios.forEach((item,index) => {
+      [...scenarios, {id:'custom',label:'Write your own reply'}].forEach(item => {
         const label = node('label');
         const radio = node('input');
-        radio.type='radio';radio.name='reply';radio.value=item.id;radio.checked=index===0;
+        radio.type='radio';radio.name='reply';radio.value=item.id;
         radio.addEventListener('change',() => {
-          if (!radio.checked) return;
-          scenario = item;
-          byId('result').hidden=true;
-          byId('find-approval').setAttribute('aria-expanded','false');
-          byId('announcement').textContent=item.label + '. Choose Review email evidence to see the result.';
+          if (radio.checked) chooseMode(item.id);
         });
         label.append(radio,document.createTextNode(item.label));
         byId('scenarios').append(label);
+      });
+    }
+    function setupComposer() {
+      const original = scenarios.find(item => item.id === editor.template_scenario);
+      const thread = original.threads.find(item => item.id === editor.thread_id);
+      const offer = thread.messages.find(message => message.id === editor.offer_message_id);
+      const buyer = thread.messages.find(message => message.id === editor.buyer_message_id).name;
+      const line = lines.get(editor.line_id);
+      const input = byId('owner-reply');
+      byId('compose-intro').textContent = 'The bill includes '+money(line.cents)+' for '+line.description.toLowerCase()+'. '+buyer+' can approve up to '+money(editor.approval_limit_cents)+'. What would your reply authorise?';
+      byId('offer-sender').textContent = offer.name+' · '+thread.supplier;
+      byId('offer-body').textContent = offer.body;
+      byId('reply-label').textContent = 'Your reply as '+buyer;
+      function validateReply() {
+        const length = input.value.length;
+        const limit = editor.max_length.toLocaleString('en-AU');
+        const error = !input.value.trim() ? 'Write a reply to the supplier.'
+          : length > editor.max_length ? 'Shorten your reply to '+limit+' characters before analysing it.' : '';
+        input.setCustomValidity(error);
+        byId('reply-count').textContent = length.toLocaleString('en-AU')+' / '+limit;
+        return error;
+      }
+      validateReply();
+      input.addEventListener('input',() => {
+        const stale = !byId('result').hidden;
+        clearResult();
+        validateReply();
+        byId('reply-error').hidden = true;
+        input.removeAttribute('aria-invalid');
+        if (stale) byId('announcement').textContent = 'Reply changed. Analyse it again for an updated result.';
+      });
+      input.addEventListener('invalid',() => {
+        byId('reply-error').textContent = validateReply();
+        byId('reply-error').hidden = false;
+        input.setAttribute('aria-invalid','true');
+      });
+      byId('reply-form').addEventListener('submit',event => {
+        event.preventDefault();
+        if (validateReply()) {input.reportValidity();return;}
+        try {
+          scenario = buildCustomScenario(input.value,emailData,replyModel);
+          byId('reply-error').hidden = true;
+          review();
+        } catch {
+          clearResult();
+          byId('reply-error').textContent = 'This reply could not be analysed. Edit it and try again.';
+          byId('reply-error').hidden = false;
+        }
       });
     }
     function highlight(body, excerpts) {
@@ -220,7 +315,7 @@
     }
     function renderThreads() {
       const eligible=scenario.threads.filter(thread => thread.eligible).length;
-      byId('search-summary').textContent=eligible+' of '+scenario.threads.length+' match the supplier and job '+bill.job_ref+'. The AI read the matching threads.';
+      byId('search-summary').textContent=eligible+' of '+scenario.threads.length+' match the supplier and job '+bill.job_ref+'. '+(editingReply ? 'Your reply appears in the supplier’s thread.' : 'The AI read the matching threads.');
       byId('threads').replaceChildren(...scenario.threads.map(thread => {
         const btn=node('button',undefined,'thread');
         btn.type='button';btn.dataset.threadId=thread.id;btn.setAttribute('aria-controls','conversation');
@@ -239,7 +334,7 @@
         article.dataset.lineId=item.line_id;
         const head=node('div',undefined,'line-head');
         head.append(node('h3',money(item.amount_cents)+' · '+lines.get(item.line_id).description),
-          node('span',verdicts[item.status] || 'Review needed','verdict '+item.status));
+          node('span',item.verdict_label || verdicts[item.status] || 'Review needed','verdict '+item.status));
         article.append(head,node('p',item.reason,'reason'));
         if (item.authority_note) article.append(node('p',item.authority_note,'authority'));
         const thread=scenario.threads.find(thread => thread.id===item.thread_id);
@@ -267,18 +362,28 @@
       const result=scenario.result;
       byId('supported').textContent=money(result.supported_cents);
       byId('query').textContent=money(result.query_cents);
-      byId('result-description').textContent='The accepted quote covers '+money(bill.base_cents)+'. Your reviewer decides which questions to send. This demo sends no email.';
+      byId('result-description').textContent=editingReply
+        ? 'The accepted quote covers '+money(bill.base_cents)+'. Your reply was checked against the after-hours charge. The disposal finding comes from its separate sample email.'
+        : 'The accepted quote covers '+money(bill.base_cents)+'. Your reviewer decides which questions to send. This demo sends no email.';
       renderFindings();renderThreads();
       const first=result.items.find(item => item.thread_id)?.thread_id || scenario.threads[0]?.id;
       if (first) showThread(first);
       byId('result').hidden=false;
-      byId('find-approval').setAttribute('aria-expanded','true');
+      byId(editingReply ? 'analyse-reply' : 'find-approval').setAttribute('aria-expanded','true');
       byId('result-title').focus();
       byId('announcement').textContent=scenario.label+'. '+money(result.supported_cents)+' supported. '+money(result.query_cents)+' to query.';
     }
-    renderBill();options();
+    renderBill();options();setupComposer();
     byId('setup').hidden=false;
+    chooseMode(location.hash === '#write-reply' ? 'custom' : scenarios[0].id);
+    window.addEventListener('hashchange',() => {
+      if (location.hash === '#write-reply') chooseMode('custom');
+    });
     byId('find-approval').addEventListener('click',review);
+    byId('edit-reply').addEventListener('click',event => {
+      event.preventDefault();
+      byId('owner-reply').focus();
+    });
   </script>
 </body>
 </html>

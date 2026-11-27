@@ -1,6 +1,7 @@
 """Generate the self-contained email approval walkthrough from the verified model readings."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -11,16 +12,25 @@ if str(ROOT) not in sys.path:
 from invoice_review.email_review import build_bundle
 
 
-def main():
-    template = (ROOT / "demo/email-approvals.template.html").read_text(encoding="utf-8")
-    marker = "{{EMAIL_DATA}}"
-    if template.count(marker) != 1:
-        raise ValueError("Expected exactly one email data marker in the walkthrough template.")
-    payload = json.dumps(build_bundle(), ensure_ascii=True, sort_keys=True, separators=(",", ":"))
-    payload = payload.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
-    with (ROOT / "demo/email-approvals.html").open("w", encoding="utf-8", newline="\n") as handle:
-        handle.write(template.replace(marker, payload))
-    print("Built demo/email-approvals.html from the source-checked email readings.")
+def script_json(data):
+    payload = json.dumps(data, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+    return payload.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+
+
+def main(output=None):
+    demo = ROOT / "demo"
+    template = (demo / "email-approvals.template.html").read_text(encoding="utf-8")
+    model = json.loads((ROOT / "invoice_review/data/reply_model.json").read_text(encoding="utf-8"))
+    parts = {"{{EMAIL_DATA}}": script_json(build_bundle()), "{{REPLY_MODEL}}": script_json(model),
+             "{{REPLY_INTENT_JS}}": (demo / "reply-intent.js").read_text(encoding="utf-8"),
+             "{{REPLY_POLICY_JS}}": (demo / "reply-policy.js").read_text(encoding="utf-8")}
+    for marker, content in parts.items():
+        if template.count(marker) != 1 or "</script" in content.lower():
+            raise ValueError(f"Invalid script or template marker: {marker}")
+    html = re.sub("|".join(map(re.escape, parts)), lambda match: parts[match[0]], template)
+    path = output or demo / "email-approvals.html"
+    path.write_text(html, encoding="utf-8", newline="\n")
+    print(f"Built {path.name} with recorded readings and the local reply classifier.")
 
 
 if __name__ == "__main__":
